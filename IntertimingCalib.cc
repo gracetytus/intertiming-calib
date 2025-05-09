@@ -266,13 +266,6 @@ gPad->SetGridx(1);
 gPad->SetGridy(1);
 gPad->SetLogy(1);
 
-sprintf(text, "%s/%s_t_diff.root", Directory.c_str(), Prefix.c_str());
-Ct_diff.SaveAs(text);
-sprintf(text, "%s/%s_t_diff.pdf", Directory.c_str(), Prefix.c_str());
-Ct_diff.SaveAs(text);
-sprintf(text, "%s/%s_t_diff.png", Directory.c_str(), Prefix.c_str());
-Ct_diff.SaveAs(text);   
-
 cout << n_rejected << " events did not pass our cut!" << endl;
 cout << n_accepted << " events did pass our cut!" << endl;
 cout << n_histo << " events were histogrammed!" << endl;
