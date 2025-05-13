@@ -22,7 +22,7 @@ int main(int argc, char * argv[])
   TreeRec->GetEntry(0);
 
   //constructing t_diff histogram
-  TH1D* Ht_diff = new TH1D("Ht_diff", "t_66_t_67", 150,-5,5);
+  TH1D* Ht_diff = new TH1D("Ht_diff", "t_65_t_66", 150,-5,5);
   Ht_diff->SetLineWidth(3);
   Ht_diff->SetLineColor(kBlue);
   Ht_diff->SetXTitle("nanoseconds");
@@ -35,26 +35,40 @@ int main(int argc, char * argv[])
   HNTracks->SetXTitle("n tracks");
   HNTracks->SetYTitle("n");
 
-  //populating NTracks histogram
-  for (unsigned int i=0; i< TreeRec->GetEntries(); i++) {
-    HNTracks ->Fill(Event->GetNTracks());
-    cout << "NEntries " << TreeRec->GetEntries() << std::endl;
-    if (Event->GetNTracks() != 1){
-      continue;
-    }
-  }
-
   //declaring variables for cuts
-  int primary_vid   = 100000500;
-  int secondary_vid = 100000600;
+  int primary_vid   = 100000400;
+  int secondary_vid = 100000500;
   int n_rejected    = 0;
   int n_accepted    = 0;
   int n_histo       = 0;
+  double t_diff     = 0;
+
+
+  vector<int> volume_ids;
 
   //cuts
   for (uint i = 0; i < TreeRec->GetEntries(); i++) {
     TreeRec->GetEntry(i); 
-      
+    t_diff = 0;
+    volume_ids = Event->GetVolumeId();
+    //if (Event->GetNTracks() != 1) {
+      //continue;
+    //}
+    if(find(volume_ids.begin(), volume_ids.end(), primary_vid) != volume_ids.end()){
+      if(find(volume_ids.begin(), volume_ids.end(), secondary_vid) != volume_ids.end()){
+        n_accepted++;
+      }
+      else{
+        n_rejected++;
+        continue;
+      }
+    }
+    else{
+      n_rejected++;
+      continue;
+    }
+
+    /*
     bool accepted1 = false;
     bool accepted2 = false;
     double t_diff = 0;
@@ -71,11 +85,12 @@ int main(int argc, char * argv[])
         continue;
     }
     n_accepted++;
-
+*/
     //populating t_diff histogram
     double primary_time   = -1;
     double secondary_time = -1;
     if (Event->GetNTracks() == 1) {
+      HNTracks->Fill(Event->GetNTracks());
       for(unsigned int k = 0; k < Event->GetTotalEnergyDeposition().size(); k++) {
         unsigned int VolumeId = Event->GetVolumeId().at(k);
         //debugging
@@ -87,21 +102,20 @@ int main(int argc, char * argv[])
         //cout << " -- time " << Event->GetTime().at(k) << endl;
         if(VolumeId == primary_vid){
             primary_time = Event->GetTime().at(k);
-        
-          if(VolumeId == secondary_vid){
-              secondary_time = Event->GetTime().at(k);
-          }
-          if (primary_time == -1 || secondary_time == -1) {
-            continue;
-          }  
-          t_diff = primary_time - secondary_time; 
-          cout << "t_diff " << TreeRec->GetEntries() << std::endl;
-          //debugging
-          //cout << "  ==> primary time " << primary_time << " secondary time " << secondary_time << " t diff " << t_diff << endl;
-          Ht_diff->Fill(t_diff);
-          n_histo++;
-          break;
         }
+        if(VolumeId == secondary_vid){
+            secondary_time = Event->GetTime().at(k);
+        }
+        if (primary_time == -1 || secondary_time == -1) {
+          continue;
+        }  
+        t_diff = primary_time - secondary_time; 
+        //debugging
+        //cout << "  ==> primary time " << primary_time << " secondary time " << secondary_time << " t diff " << t_diff << endl;
+        Ht_diff->Fill(t_diff);
+        n_histo++;
+        break;
+        
       }
     }
   }
