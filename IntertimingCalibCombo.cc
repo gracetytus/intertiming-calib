@@ -18,6 +18,11 @@
 #include "progressbar.hpp"
 #include <format>
 #include <boost/format.hpp>
+#include <TH1.h>
+#include <TF1.h>
+#include <TPaveText.h>
+#include "TFile.h"
+#include <TLine.h>
 
 using std::vector, std::string, std::cout, std::endl;
 using boost::format;
@@ -99,8 +104,43 @@ int main(int argc, char* argv[]){
     for(uint i=0; i<time_diffs.size(); i++){
         canvas_name_fmt%paddle_nums[i]%paddle_nums[i+1];
         pdf_name_fmt%paddle_nums[i]%paddle_nums[i+1];
-        canvas = new TCanvas(canvas_name_fmt.str().c_str(), canvas_name_fmt.str().c_str(), 1800,1800);
+        canvas = new TCanvas(canvas_name_fmt.str().c_str(), canvas_name_fmt.str().c_str(), 200, 10, 900, 900);
+        canvas->SetLeftMargin(0.11);
+        canvas->SetTopMargin(0.08);
+        canvas->SetRightMargin(0.04);
         canvas->SetLogy();
+
+        time_diffs[i]->Fit('gaus');
+        TF1* fitted_func = time_diffs[i]->TH1::GetFunction("gaus");
+        fitted_func->SetLineColor(kRed); 
+        fitted_func->SetLineWidth(2); 
+        fitted_func->Draw("SAME");
+
+    
+        double par1 = fitted_func->GetParameter(1); 
+        double par2 = fitted_func->GetParameter(2);
+
+        std::string text0 = (boost::format("%-16s %1.3f") % "#mu" % par1).str();
+        std::string text1 = (boost::format("%-20s %1.3f") % "#sigma" % par2).str();
+
+        TPaveText* t = new TPaveText(0.78, 0.64, 0.98, 0.78, "blNDC");
+
+        TText* fitText = t->AddText("Fit");
+        fitText->SetTextSize(0.038);  
+
+        TLine* line = t->AddLine(0.0, 0.72, 1.0, 0.72);
+        line->SetLineWidth(1); 
+        t->AddText(text0.c_str());
+        t->AddText(text1.c_str());
+
+        t->SetBorderSize(1);
+        t->SetTextFont(42);
+        t->SetFillColor(0);
+        t->SetTextSize(0.025);
+        t->SetMargin(0.0009);
+        t->Draw("SAME");
+
+
         time_diffs[i]->SetXTitle("Time Difference [ns]");
         time_diffs[i]->SetYTitle("Number of Events");
         time_diffs[i]->Draw("HIST");
