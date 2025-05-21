@@ -1,0 +1,110 @@
+#include <TFile.h>
+#include "CEventMc.hh"
+#include "GOptionParser.hh"
+#include "GFileIO.hh"
+#include "CEventRec.hh"
+#include "GGeometryObject.hh"
+#include "TChain.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "TH3.h"
+#include "TCanvas.h"
+#include <algorithm>
+#include <iostream>
+#include <vector>
+#include "TGraph.h"
+#include "TColor.h"
+#include "TStyle.h"
+#include "progressbar.hpp"
+#include <format>
+#include <boost/format.hpp>
+
+using std::vector, std::string, std::cout, std::endl;
+using boost::format;
+
+int main(int argc, char* argv[]){
+
+    vector<int> paddle_nums = {01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12};
+    vector<int> paddle_ids = {0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100};
+    for(uint i=0; i<paddle_ids.size(); i++){
+        paddle_ids[i] = paddle_ids[i] + 110000000;
+    }
+    vector<TH1D*> time_diffs;
+    format hist_name_fmt = format("tdiff_%1%_%2%");
+    format hist_title_fmt = format("T_{%1%} - T_{%2%}");
+    for(uint i=0; i<paddle_ids.size()-1; i++){
+        hist_name_fmt%paddle_nums[i]%paddle_nums[i+1];
+        hist_title_fmt%paddle_nums[i]%paddle_nums[i+1];
+        time_diffs.push_back(new TH1D(hist_name_fmt.str().c_str(),hist_title_fmt.str().c_str(),150,-5,5));
+    }
+    vector<double> paddle_times(paddle_nums.size());
+
+    GOptionParser* parser = GOptionParser::GetInstance();
+    parser->AddProgramDescription("Computes the interpaddle time differences for adjacent TOF paddles");
+    parser->AddCommandLineOption<string>("rec_path", "path to instrument data files", "./*", "i");
+    parser->AddCommandLineOption<string>("out_file", "name of output root file", "out.root", "o");
+    parser->ParseCommandLine(argc, argv);
+    parser->Parse();
+
+    string data_path = parser->GetOption<string>("rec_path");
+    string out_path = parser->GetOption<string>("out_file");
+
+    TChain* Instrument_Events = new TChain("TreeRec");
+    CEventRec* Event = new CEventRec;
+    Instrument_Events->SetBranchAddress("Rec", &Event);
+    Instrument_Events->Add(data_path.c_str());
+
+    int vol_id=0, n_relevant_hits=0;
+
+    progressbar progress(Instrument_Events->GetEntries());
+
+    for(uint i=0; i<Instrument_Events->GetEntries(); i++){
+        Instrument_Events->GetEntry(i);
+        progress.update();
+        if(Event->GetNTracks() != 1){
+            continue;
+        }
+        n_relevant_hits = 0;
+        fill(paddle_times.begin(), paddle_times.end(), -1);
+        for(GRecoHit hit:Event->GetHitSeries()){
+            vol_id = hit.GetVolumeId();
+            if(GGeometryObject::IsTofVolume(vol_id)){
+                for(uint j=0; j<paddle_ids.size(); j++){
+                    if(vol_id==paddle_ids[j]){
+                        paddle_times[j] = hit.GetTime();
+                        n_relevant_hits++;
+                    }
+                }
+            }
+        }
+        if(n_relevant_hits<2){ // skip any events that can not be of interest
+            continue;
+        }
+        for(uint j=0; j<paddle_ids.size()-1; j++){
+            if((paddle_times[j]>0)&&(paddle_times[j+1]>0)){
+                time_diffs[j]->Fill(paddle_times[j]-paddle_times[j+1]);
+            }
+        }
+    }
+    cout << endl;
+
+    TFile out_file(out_path.c_str(), "recreate");
+    out_file.cd();
+
+    format canvas_name_fmt = format("p%1%%2%canvas");
+    format pdf_name_fmt = format("paddle_%1%_%2%_tdiff.pdf");
+    TCanvas* canvas;
+    for(uint i=0; i<time_diffs.size(); i++){
+        canvas_name_fmt%paddle_nums[i]%paddle_nums[i+1];
+        pdf_name_fmt%paddle_nums[i]%paddle_nums[i+1];
+        canvas = new TCanvas(canvas_name_fmt.str().c_str(), canvas_name_fmt.str().c_str(), 1800,1800);
+        canvas->SetLogy();
+        time_diffs[i]->SetXTitle("Time Difference [ns]");
+        time_diffs[i]->SetYTitle("Number of Events");
+        time_diffs[i]->Draw("HIST");
+        canvas->SaveAs(pdf_name_fmt.str().c_str());
+        canvas->Write(canvas->GetName());
+        time_diffs[i]->Write(time_diffs[i]->GetName());
+    }
+    out_file.Close();
+}
