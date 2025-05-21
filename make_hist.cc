@@ -62,12 +62,10 @@ t->SetMargin(0.0009);
 t->Draw("SAME");
 
 //saving
-std::string filename = (boost::format("%1%_%2%_t_diff.pdf") % primary_vid % secondary_vid).str();
+std::string filename = (t_diff_1_2)
 t_diff_canvas->SaveAs(filename.c_str());
 
 TFile out_file("output.root", "recreate");
 out_file.cd();
 Ht_diff->Write("Ht_diff");
 out_file.Close();
-
-return EXIT_SUCCESS;
