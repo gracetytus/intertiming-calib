@@ -8,10 +8,10 @@
 #include "TFile.h"
 #include <TLine.h>
 
-TFile in_file ("/home/gtytus/intertiming-calib/outs/cbe_top.root")
+TFile in_file ("/home/gtytus/intertiming-calib/outs/cbe_top.root");
 
 TH1D* Ht_diff = (TH1D*)in_file->Get("t_diff_1_2");
-in_file.close()
+in_file.close();
 
 Ht_diff->SetLineWidth(3);
 Ht_diff->SetLineColor(kBlue);
