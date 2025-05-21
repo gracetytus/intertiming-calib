@@ -24,7 +24,7 @@ using boost::format;
 
 int main(int argc, char* argv[]){
 
-    vector<int> paddle_nums = {01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12};
+    vector<int> paddle_nums = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     vector<int> paddle_ids = {0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100};
     for(uint i=0; i<paddle_ids.size(); i++){
         paddle_ids[i] = paddle_ids[i] + 110000000;
@@ -56,11 +56,13 @@ int main(int argc, char* argv[]){
 
     int vol_id=0, n_relevant_hits=0;
 
-    progressbar progress(Instrument_Events->GetEntries());
+    progressbar progress(Instrument_Events->GetEntries()/1000);
 
     for(uint i=0; i<Instrument_Events->GetEntries(); i++){
         Instrument_Events->GetEntry(i);
-        progress.update();
+	if(i%1000==0){
+        	progress.update();
+	}
         if(Event->GetNTracks() != 1){
             continue;
         }
