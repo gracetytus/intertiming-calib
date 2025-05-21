@@ -110,11 +110,10 @@ int main(int argc, char* argv[]){
         canvas->SetRightMargin(0.04);
         canvas->SetLogy();
 
-        time_diffs[i]->Fit('gaus');
+        time_diffs[i]->Fit("gaus");
         TF1* fitted_func = time_diffs[i]->TH1::GetFunction("gaus");
         fitted_func->SetLineColor(kRed); 
         fitted_func->SetLineWidth(2); 
-        fitted_func->Draw("SAME");
 
     
         double par1 = fitted_func->GetParameter(1); 
@@ -138,12 +137,14 @@ int main(int argc, char* argv[]){
         t->SetFillColor(0);
         t->SetTextSize(0.025);
         t->SetMargin(0.0009);
-        t->Draw("SAME");
 
 
         time_diffs[i]->SetXTitle("Time Difference [ns]");
         time_diffs[i]->SetYTitle("Number of Events");
         time_diffs[i]->Draw("HIST");
+        fitted_func->Draw("SAME");
+        t->Draw("SAME");
+        
         canvas->SaveAs(pdf_name_fmt.str().c_str());
         canvas->Write(canvas->GetName());
         time_diffs[i]->Write(time_diffs[i]->GetName());
