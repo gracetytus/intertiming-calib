@@ -35,3 +35,14 @@ add_executable(IntertimingCalib IntertimingCalib.cc)
 target_include_directories(IntertimingCalib PRIVATE ${GAPS_INCLUDE_DIRS}/gaps)
 target_link_libraries(IntertimingCalib ${LIB_DIRS})
 
+add_executable(IntertimingCalibCombo IntertimingCalibCombo.cc)
+target_include_directories(IntertimingCalibCombo PRIVATE ${GAPS_INCLUDE_DIRS}/gaps)
+target_link_libraries(IntertimingCalibCombo ${LIB_DIRS})
+
+add_executable(LeastSquaresIntertiming lsq_intertiming.cc)
+target_include_directories(LeastSquaresIntertiming PRIVATE ${GAPS_INCLUDE_DIRS}/gaps)
+target_link_libraries(LeastSquaresIntertiming ${LIB_DIRS})
+
+#add_executable(MakeHist make_hist.cc)
+#target_include_directories(MakeHist PRIVATE ${GAPS_INCLUDE_DIRS}/gaps)
+#target_link_libraries(MakeHist ${LIB_DIRS})

@@ -27,7 +27,7 @@ int main(int argc, char * argv[])
   TreeRec->GetEntry(0);
 
   //constructing t_diff histogram
-  TH1D* Ht_diff = new TH1D("Ht_diff", "t_11 - t_12", 150,-5,5);
+  TH1D* Ht_diff = new TH1D("Ht_diff", "t_01 - t_02", 150,-5,5);
   Ht_diff->SetLineWidth(3);
   Ht_diff->SetLineColor(kBlue);
   Ht_diff->SetXTitle("nanoseconds");
@@ -41,8 +41,8 @@ int main(int argc, char * argv[])
   //HNTracks->SetYTitle("n");
 
   //declaring variables for cuts
-  int primary_vid   = 110001000;
-  int secondary_vid = 110001100;
+  int primary_vid   = 110000000;
+  int secondary_vid = 110000100;
   int n_rejected    = 0;
   int n_accepted    = 0;
   int n_histo       = 0;
