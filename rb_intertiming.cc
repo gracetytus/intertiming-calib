@@ -28,7 +28,7 @@ using boost::format;
 int main(int argc, char* argv[]) {
     vector<int> paddle_nums = {1, 2, 3, 4, 5, 6};
     vector<int> paddle_ids = {0, 100, 200, 300, 400, 500};
-    vector<double> offsets = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // your paddle-specific offsets here
+    vector<double> offsets = {0.0, 0.393, -0.066, 0.276, 0.001, 0.300}; // your paddle-specific offsets here
 
     for (uint i = 0; i < paddle_ids.size(); i++) {
         paddle_ids[i] += 110000000;
@@ -155,9 +155,9 @@ int main(int argc, char* argv[]) {
                 double t_diff = paddle_times[j] - paddle_times[j + 1];
                 
                 // Apply rb_offset only if pair crosses readout boards
-                if ((j == 0) || (j == 2) || (j == 4)) {
-                    t_diff -= rb_offset;
-                }
+                //if ((j == 0) || (j == 2) || (j == 4)) {
+                t_diff -= rb_offset;
+                //}
                 
                 time_diffs[j]->Fill(t_diff);
             }
