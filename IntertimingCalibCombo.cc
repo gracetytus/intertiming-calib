@@ -113,38 +113,45 @@ int main(int argc, char* argv[]){
 
         time_diffs[i]->Fit("gaus");
         TF1* fitted_func = time_diffs[i]->TH1::GetFunction("gaus");
-        fitted_func->SetLineColor(kRed); 
-        fitted_func->SetLineWidth(2); 
+        if (fitted_func) {
+            fitted_func->SetLineColor(kRed); 
+            fitted_func->SetLineWidth(2); 
 
-    
-        double par1 = fitted_func->GetParameter(1); 
-        double par2 = fitted_func->GetParameter(2);
+        
+            double par1 = fitted_func->GetParameter(1); 
+            double par2 = fitted_func->GetParameter(2);
 
-        std::string text0 = (boost::format("%-16s %1.3f") % "#mu" % par1).str();
-        std::string text1 = (boost::format("%-20s %1.3f") % "#sigma" % par2).str();
+            std::string text0 = (boost::format("%-16s %1.3f") % "#mu" % par1).str();
+            std::string text1 = (boost::format("%-20s %1.3f") % "#sigma" % par2).str();
 
-        TPaveText* t = new TPaveText(0.78, 0.64, 0.98, 0.78, "blNDC");
+            TPaveText* t = new TPaveText(0.78, 0.64, 0.98, 0.78, "blNDC");
 
-        TText* fitText = t->AddText("Fit");
-        fitText->SetTextSize(0.038);  
+            TText* fitText = t->AddText("Fit");
+            fitText->SetTextSize(0.038);  
 
-        TLine* line = t->AddLine(0.0, 0.72, 1.0, 0.72);
-        line->SetLineWidth(1); 
-        t->AddText(text0.c_str());
-        t->AddText(text1.c_str());
+            TLine* line = t->AddLine(0.0, 0.72, 1.0, 0.72);
+            line->SetLineWidth(1); 
+            t->AddText(text0.c_str());
+            t->AddText(text1.c_str());
 
-        t->SetBorderSize(1);
-        t->SetTextFont(42);
-        t->SetFillColor(0);
-        t->SetTextSize(0.025);
-        t->SetMargin(0.0009);
+            t->SetBorderSize(1);
+            t->SetTextFont(42);
+            t->SetFillColor(0);
+            t->SetTextSize(0.025);
+            t->SetMargin(0.0009);
 
 
-        time_diffs[i]->SetXTitle("Time Difference [ns]");
-        time_diffs[i]->SetYTitle("Number of Events");
-        time_diffs[i]->Draw("HIST");
-        fitted_func->Draw("SAME");
-        t->Draw("SAME");
+            time_diffs[i]->SetXTitle("Time Difference [ns]");
+            time_diffs[i]->SetYTitle("Number of Events");
+            time_diffs[i]->Draw("HIST");
+            fitted_func->Draw("SAME");
+            t->Draw("SAME");
+        }
+        else {
+            time_diffs[i]->Draw("HIST");
+            std::cerr << "Warning: Fit failed for histogram " << time_diffs[i]->GetName() << std::endl;
+        }
+        
         
         canvas->SaveAs(pdf_name_fmt.str().c_str());
         canvas->Write(canvas->GetName());
