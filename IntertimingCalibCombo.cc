@@ -29,11 +29,11 @@ using boost::format;
 
 int main(int argc, char* argv[]){
 
-    vector<int> paddle_nums = {113, 114, 115};
-    vector<int> paddle_ids = {500, 400, 300};
-    vector<double> offsets = {0.000, 0.117, 0.238};
+    vector<int> paddle_nums = {13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24};
+    //vector<int> paddle_ids = {0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100};
+    vector<int> paddle_ids = {1100, 1000, 900, 800, 700, 600, 500, 400, 300, 200, 100};
     for(uint i=0; i<paddle_ids.size(); i++){
-        paddle_ids[i] = paddle_ids[i] + 102000000;
+        paddle_ids[i] = paddle_ids[i] + 111000000;
     }
     vector<TH1D*> time_diffs;
     format hist_name_fmt = format("tdiff_%1%_%2%");
@@ -79,7 +79,7 @@ int main(int argc, char* argv[]){
             if(GGeometryObject::IsTofVolume(vol_id)){
                 for(uint j=0; j<paddle_ids.size(); j++){
                     if(vol_id==paddle_ids[j]){
-                        paddle_times[j] = {hit.GetTime() - offsets[j]};
+                        paddle_times[j] = hit.GetTime();
                         n_relevant_hits++;
                     }
                 }
@@ -109,7 +109,7 @@ int main(int argc, char* argv[]){
         canvas->SetLeftMargin(0.11);
         canvas->SetTopMargin(0.08);
         canvas->SetRightMargin(0.04);
-        canvas->SetLogy();
+        //canvas->SetLogy();
 
         time_diffs[i]->Fit("gaus");
         TF1* fitted_func = time_diffs[i]->TH1::GetFunction("gaus");

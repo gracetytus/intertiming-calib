@@ -76,6 +76,9 @@ int main(int argc, char* argv[]) {
     Instrument_Events->SetBranchAddress("Rec", &Event);
     for (uint i = 0; i < Instrument_Events->GetEntries(); i++) {
         Instrument_Events->GetEntry(i);
+	if(i%1000==0){
+        	progress.update();
+	}
         if (Event->GetNTracks() != 1) continue;
 
         n_relevant_hits = 0;
