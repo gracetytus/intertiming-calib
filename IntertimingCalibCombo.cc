@@ -29,11 +29,11 @@ using boost::format;
 
 int main(int argc, char* argv[]){
 
-    vector<int> paddle_nums = {13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24};
+    vector<int> paddle_nums = {25, 26, 27, 28, 29, 30, 31, 32};
     //vector<int> paddle_ids = {0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100};
-    vector<int> paddle_ids = {1100, 1000, 900, 800, 700, 600, 500, 400, 300, 200, 100};
+    vector<int> paddle_ids = {700, 600, 500, 400, 300, 200, 100};
     for(uint i=0; i<paddle_ids.size(); i++){
-        paddle_ids[i] = paddle_ids[i] + 111000000;
+        paddle_ids[i] = paddle_ids[i] + 112000000;
     }
     vector<TH1D*> time_diffs;
     format hist_name_fmt = format("tdiff_%1%_%2%");
