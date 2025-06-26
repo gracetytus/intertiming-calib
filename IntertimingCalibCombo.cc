@@ -29,9 +29,21 @@ using boost::format;
 
 int main(int argc, char* argv[]){
 
-    vector<int> paddle_nums = {73, 74, 75, 76, 77, 78};
-    //vector<int> paddle_ids = {0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100};
-    vector<int> paddle_ids = {500, 400, 300, 200, 100, 0};
+
+    GOptionParser* parser = GOptionParser::GetInstance();
+    parser->AddProgramDescription("Computes the interpaddle time differences for adjacent TOF paddles");
+    parser->AddCommandLineOption<string>("rec_path", "path to instrument data files", "./*", "i");
+    parser->AddCommandLineOption<string>("out_file", "name of output root file", "out.root", "o");
+    parser->AddCommandLineOption<int>("paddle_nums", "paddle numbers to be considered by this script", "{}", "pn");
+    parser->AddCommandLineOption<int>("paddle_ids", "paddle volume id endings to be considered by this script", "{}", "pids");
+    parser->AddCommandLineOption<int>("vol_id_base", "base of volume ids to be considered by this script", "000000000", "pb");
+    parser->ParseCommandLine(argc, argv);
+    parser->Parse();
+
+    vector<int> paddle_nums = parser->GetOption<int>("paddle_nums");
+    vector<int> paddle_ids = parser->GetOption<int>("paddle_ids");
+    double<int> vol_id_base = parser->GetOption<int>("vol_id_base");
+
     for(uint i=0; i<paddle_ids.size(); i++){
         paddle_ids[i] = paddle_ids[i] + 100300000;
     }
@@ -44,13 +56,6 @@ int main(int argc, char* argv[]){
         time_diffs.push_back(new TH1D(hist_name_fmt.str().c_str(),hist_title_fmt.str().c_str(),150,-5,5));
     }
     vector<double> paddle_times(paddle_nums.size());
-
-    GOptionParser* parser = GOptionParser::GetInstance();
-    parser->AddProgramDescription("Computes the interpaddle time differences for adjacent TOF paddles");
-    parser->AddCommandLineOption<string>("rec_path", "path to instrument data files", "./*", "i");
-    parser->AddCommandLineOption<string>("out_file", "name of output root file", "out.root", "o");
-    parser->ParseCommandLine(argc, argv);
-    parser->Parse();
 
     string data_path = parser->GetOption<string>("rec_path");
     string out_path = parser->GetOption<string>("out_file");
