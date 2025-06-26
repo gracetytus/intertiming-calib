@@ -45,7 +45,7 @@ int main(int argc, char* argv[]){
     double<int> vol_id_base = parser->GetOption<int>("vol_id_base");
 
     for(uint i=0; i<paddle_ids.size(); i++){
-        paddle_ids[i] = paddle_ids[i] + 100300000;
+        paddle_ids[i] = paddle_ids[i] + vol_id_base;
     }
     vector<TH1D*> time_diffs;
     format hist_name_fmt = format("tdiff_%1%_%2%");
