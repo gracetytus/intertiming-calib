@@ -29,11 +29,11 @@ using boost::format;
 
 int main(int argc, char* argv[]){
 
-    vector<int> paddle_nums = {25, 26, 27, 28, 29, 30, 31, 32};
+    vector<int> paddle_nums = {73, 74, 75, 76, 77, 78};
     //vector<int> paddle_ids = {0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100};
-    vector<int> paddle_ids = {700, 600, 500, 400, 300, 200, 100};
+    vector<int> paddle_ids = {500, 400, 300, 200, 100, 0};
     for(uint i=0; i<paddle_ids.size(); i++){
-        paddle_ids[i] = paddle_ids[i] + 112000000;
+        paddle_ids[i] = paddle_ids[i] + 100300000;
     }
     vector<TH1D*> time_diffs;
     format hist_name_fmt = format("tdiff_%1%_%2%");
@@ -56,6 +56,7 @@ int main(int argc, char* argv[]){
     string out_path = parser->GetOption<string>("out_file");
 
     TChain* Instrument_Events = new TChain("TreeRec");
+    Instrument_Events->SetAutoDelete(true);   
     CEventRec* Event = new CEventRec;
     Instrument_Events->SetBranchAddress("Rec", &Event);
     Instrument_Events->Add(data_path.c_str());
