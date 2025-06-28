@@ -35,6 +35,16 @@ vector<int> parseCommaSeparatedInts(const string& input) {
     return result;
 }
 
+vector<float> parseCommaSeparatedFloats(const string& input) {
+	vector<float> result;
+	std::stringstream ss(input);
+	string token;
+	while (std::getline(ss, token, ',')) {
+		result.push_back(std::stoi(token));
+	}
+	return result;
+}
+
 int main(int argc, char* argv[]) {
     // initialize paddle nums, paddle ids, calculated offsets, and 'base' panel id
     GOptionParser* parser = GOptionParser::GetInstance();
@@ -44,6 +54,7 @@ int main(int argc, char* argv[]) {
     parser->AddCommandLineOption<string>("paddle_nums", "comma seperated paddle numbers to be considered by this script", "1,2,3", "n");
     parser->AddCommandLineOption<string>("paddle_ids", "comma seperated paddle volume id endings to be considered by this script", "4,5,6", "b");
     parser->AddCommandLineOption<int>("vol_id_base", "base of volume ids to be considered by this script", 000000000, "s");
+    parser->AddCommandLineOption<string>("pid", "panel id, used in title of output .root file", "p0", "p");
     parser->AddCommandLineOption<string>("offsets", "comma seperated offsets calculated to shift t_diff distributions", "0, 0, 0", "f");
     parser->ParseCommandLine(argc, argv);
     parser->Parse();
@@ -54,9 +65,10 @@ int main(int argc, char* argv[]) {
 
     vector<int> paddle_nums = parseCommaSeparatedInts(paddle_nums_str);
     vector<int> paddle_ids_suffix = parseCommaSeparatedInts(paddle_ids_str);
-    vector<float> offsets = parseCommaSeperatedInts(offsets_str);  
+    vector<float> offsets = parseCommaSeparatedFloats(offsets_str);  
 	
     int vol_id_base = parser->GetOption<int>("vol_id_base");
+    int panel_id = parser->GetOption<int>("pid");
 
     vector<int> paddle_ids(paddle_ids_suffix.size());
     for (size_t i = 0; i < paddle_ids_suffix.size(); i++) {
@@ -81,7 +93,7 @@ int main(int argc, char* argv[]) {
     vector<double> inter_board_diffs;
 
     string data_path = parser->GetOption<string>("rec_path");
-    string out_path = parser->GetOption<string>("out_file");
+    std::string out_path = parser->GetOption<std::string>("pid") + "_" + parser->GetOption<std::string>("out_file");
 
     // initialize new TChain to store information, open CEventRec, store events in Instrument_Events
     TChain* Instrument_Events = new TChain("TreeRec");
