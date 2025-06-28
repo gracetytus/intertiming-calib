@@ -25,14 +25,42 @@ using std::cout;
 using std::endl;
 using boost::format;
 
+vector<int> parseCommaSeparatedInts(const string& input) {
+    vector<int> result;
+    std::stringstream ss(input);
+    string token;
+    while (std::getline(ss, token, ',')) {
+        result.push_back(std::stoi(token));
+    }
+    return result;
+}
+
 int main(int argc, char* argv[]) {
     // initialize paddle nums, paddle ids, calculated offsets, and 'base' panel id
-    vector<int> paddle_nums = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
-    vector<int> paddle_ids = {0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100};
-    vector<double> offsets = {0.0, 0.393, -0.066, 0.276, 0.001, 0.300, -0.417, -0.290, -0.173,-0.400, -0.391, -0.427 }; 
+    GOptionParser* parser = GOptionParser::GetInstance();
+    parser->AddProgramDescription("Computes the interpaddle time differences for adjacent TOF paddles");
+    parser->AddCommandLineOption<string>("rec_path", "path to instrument data files", "./*", "i");
+    parser->AddCommandLineOption<string>("out_file", "name of output root file", "out.root", "o");
+    parser->AddCommandLineOption<string>("paddle_nums", "comma seperated paddle numbers to be considered by this script", "1,2,3", "n");
+    parser->AddCommandLineOption<string>("paddle_ids", "comma seperated paddle volume id endings to be considered by this script", "4,5,6", "b");
+    parser->AddCommandLineOption<int>("vol_id_base", "base of volume ids to be considered by this script", 000000000, "s");
+    parser->AddCommandLineOption<string>("offsets", "comma seperated offsets calculated to shift t_diff distributions", "0, 0, 0", "f");
+    parser->ParseCommandLine(argc, argv);
+    parser->Parse();
 
-    for (uint i = 0; i < paddle_ids.size(); i++) {
-        paddle_ids[i] += 110000000;
+    string paddle_nums_str = parser->GetOption<string>("paddle_nums");
+    string paddle_ids_str = parser->GetOption<string>("paddle_ids");
+    string offsets_str = parser->GetOption<string>("offsets");
+
+    vector<int> paddle_nums = parseCommaSeparatedInts(paddle_nums_str);
+    vector<int> paddle_ids_suffix = parseCommaSeparatedInts(paddle_ids_str);
+    vector<float> offsets = parseCommaSeperatedInts(offsets_str);  
+	
+    int vol_id_base = parser->GetOption<int>("vol_id_base");
+
+    vector<int> paddle_ids(paddle_ids_suffix.size());
+    for (size_t i = 0; i < paddle_ids_suffix.size(); i++) {
+    	paddle_ids[i] = vol_id_base + paddle_ids_suffix[i];
     }
 
     //create time_diff vector
@@ -51,14 +79,6 @@ int main(int argc, char* argv[]) {
     // remove?
     // initialize inter_board_diff between adjacent RBs
     vector<double> inter_board_diffs;
-
-    // initialize GOptionParser for command line interactions with script
-    GOptionParser* parser = GOptionParser::GetInstance();
-    parser->AddProgramDescription("Computes the interpaddle time differences for adjacent TOF paddles");
-    parser->AddCommandLineOption<string>("rec_path", "path to instrument data files", "./*", "i");
-    parser->AddCommandLineOption<string>("out_file", "name of output root file", "out.root", "o");
-    parser->ParseCommandLine(argc, argv);
-    parser->Parse();
 
     string data_path = parser->GetOption<string>("rec_path");
     string out_path = parser->GetOption<string>("out_file");
