@@ -1,7 +1,7 @@
 #----------------------------------------------------------------------------
 # Setup the project
 cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
-project(intertiming-calib)
+project(intertiming_calib)
 
 #----------------------------------------------------------------------------
 
@@ -46,6 +46,10 @@ target_link_libraries(LeastSquaresIntertiming ${LIB_DIRS})
 add_executable(RBIntertiming rb_intertiming.cc)
 target_include_directories(RBIntertiming PRIVATE ${GAPS_INCLUDE_DIRS}/gaps)
 target_link_libraries(RBIntertiming ${LIB_DIRS})
+
+add_executable(IntertimingShifted IntertimingCalib_stable_shifted.cc)
+target_include_directories(IntertimingShifted PRIVATE ${GAPS_INCLUDE_DIRS}/gaps)
+target_link_libraries(IntertimingShifted ${LIB_DIRS})
 
 #add_executable(MakeHist make_hist.cc)
 #target_include_directories(MakeHist PRIVATE ${GAPS_INCLUDE_DIRS}/gaps)
