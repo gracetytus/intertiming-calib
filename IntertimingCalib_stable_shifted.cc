@@ -182,18 +182,7 @@ cout << endl;
 
             double par1 = fitted_func->GetParameter(1);
             double par2 = fitted_func->GetParameter(2);
-
-            TLegend* legend = new TLegend(0.65, 0.75, 0.9, 0.9);
-            legend->SetBorderSize(0);
-            legend->SetFillStyle(0);
-            legend->SetTextFont(42);
-            legend->SetTextSize(0.03);
-
-            legend->AddEntry(time_diffs[i], "Data", "l");
-            legend->AddEntry(fitted_func, "Gaussian Fit", "l");
-            legend->AddEntry((TObject*)0, (boost::format("#mu = %.3f ns") % par1).str().c_str(), "");
-            legend->AddEntry((TObject*)0, (boost::format("#sigma = %.3f ns") % par2).str().c_str(), "");
-            legend->Draw("SAME");
+	    int n_entries = time_diffs[i]->GetEntries();
 
             time_diffs[i]->SetTitle("");
             time_diffs[i]->SetXTitle("Time Difference [ns]");
@@ -202,11 +191,24 @@ cout << endl;
             time_diffs[i]->Draw("HIST");
             time_diffs[i]->SetName("Data");
             fitted_func->Draw("SAME");
+
+	    TLegend* legend = new TLegend(0.72, 0.78, 0.9, 0.9);
+            legend->SetBorderSize(0);
+            legend->SetFillStyle(0);
+            legend->SetTextFont(42);
+            legend->SetTextSize(0.02);
+		
+	    legend->AddEntry((TObject*)0, (boost::format("Events = %d") % n_entries).str().c_str(), "");
+            legend->AddEntry(time_diffs[i], "Data", "l");
+            legend->AddEntry(fitted_func, "Gaussian Fit", "l");
+            legend->AddEntry((TObject*)0, (boost::format("#mu = %.3f ns") % par1).str().c_str(), "");
+            legend->AddEntry((TObject*)0, (boost::format("#sigma = %.3f ns") % par2).str().c_str(), "");
+            legend->Draw("SAME");
         }
 
         else {
             time_diffs[i]->Draw("HIST");
-            std:cerr <<"Warning: Fit failed for histogram " << time_diffs[i]->GetName() << std::endl;
+            std::cerr <<"Warning: Fit failed for histogram " << time_diffs[i]->GetName() << std::endl;
         }
        
         canvas->SaveAs(pdf_name_fmt.str().c_str());
