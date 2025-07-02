@@ -18,6 +18,8 @@
 #include "GRecoHit.hh"
 #include "GGeometryObject.hh"
 #include "progressbar.hpp"
+#include <TStyle.h>
+#include <TLegend.h>
 
 using std::vector;
 using std::string;
@@ -40,12 +42,14 @@ vector<float> parseCommaSeparatedFloats(const string& input) {
 	std::stringstream ss(input);
 	string token;
 	while (std::getline(ss, token, ',')) {
-		result.push_back(std::stoi(token));
+		result.push_back(std::stod(token));
 	}
 	return result;
 }
 
 int main(int argc, char* argv[]) {
+
+    gStyle->SetOptStat(0);
     // initialize paddle nums, paddle ids, calculated offsets, and 'base' panel id
     GOptionParser* parser = GOptionParser::GetInstance();
     parser->AddProgramDescription("Computes the interpaddle time differences for adjacent TOF paddles");
@@ -68,7 +72,7 @@ int main(int argc, char* argv[]) {
     vector<float> offsets = parseCommaSeparatedFloats(offsets_str);  
 	
     int vol_id_base = parser->GetOption<int>("vol_id_base");
-    int panel_id = parser->GetOption<int>("pid");
+    string panel_id = parser->GetOption<string>("pid");
 
     vector<int> paddle_ids(paddle_ids_suffix.size());
     for (size_t i = 0; i < paddle_ids_suffix.size(); i++) {
@@ -97,6 +101,8 @@ int main(int argc, char* argv[]) {
 
     // initialize new TChain to store information, open CEventRec, store events in Instrument_Events
     TChain* Instrument_Events = new TChain("TreeRec");
+
+    Instrument_Events->SetAutoDelete(true);
     CEventRec* Event = new CEventRec;
     Instrument_Events->SetBranchAddress("Rec", &Event);
     Instrument_Events->Add(data_path.c_str());
@@ -165,36 +171,34 @@ cout << endl;
         canvas->SetRightMargin(0.04);
         //canvas->SetLogy();
 
-        time_diffs[i]->Fit("gaus");
+        time_diffs[i]->Fit("gaus", "Q");
         TF1* fitted_func = time_diffs[i]->TH1::GetFunction("gaus");
         fitted_func->SetLineColor(kRed);
         fitted_func->SetLineWidth(2);
+	fitted_func->SetName("Gaussian Fit");
 
         double par1 = fitted_func->GetParameter(1);
         double par2 = fitted_func->GetParameter(2);
 
-        std::string text0 = (boost::format("%-16s %1.3f") % "#mu" % par1).str();
-        std::string text1 = (boost::format("%-20s %1.3f") % "#sigma" % par2).str();
-
-        TPaveText* t = new TPaveText(0.78, 0.64, 0.98, 0.78, "blNDC");
-        TText* fitText = t->AddText("Fit");
-        fitText->SetTextSize(0.038);
-        TLine* line = t->AddLine(0.0, 0.72, 1.0, 0.72);
-        line->SetLineWidth(1);
-        t->AddText(text0.c_str());
-        t->AddText(text1.c_str());
-        t->SetBorderSize(1);
-        t->SetTextFont(42);
-        t->SetFillColor(0);
-        t->SetTextSize(0.025);
-        t->SetMargin(0.0009);
-
+ 	time_diffs[i]->SetTitle("");
         time_diffs[i]->SetXTitle("Time Difference [ns]");
         time_diffs[i]->SetYTitle("Number of Events");
         time_diffs[i]->SetLineColor(kBlack);
         time_diffs[i]->Draw("HIST");
+	time_diffs[i]->SetName("Data");
         fitted_func->Draw("SAME");
-        t->Draw("SAME");
+
+	TLegend* legend = new TLegend(0.65, 0.75, 0.9, 0.9);
+	legend->SetBorderSize(0);
+	legend->SetFillStyle(0);
+	legend->SetTextFont(42);
+	legend->SetTextSize(0.03);
+
+	legend->AddEntry(time_diffs[i], "Data", "l");
+	legend->AddEntry(fitted_func, "Gaussian Fit", "l");
+	legend->AddEntry((TObject*)0, (boost::format("#mu = %.3f ns") % par1).str().c_str(), "");
+	legend->AddEntry((TObject*)0, (boost::format("#sigma = %.3f ns") % par2).str().c_str(), "");
+	legend->Draw("SAME");
 
         canvas->SaveAs(pdf_name_fmt.str().c_str());
         canvas->Write(canvas->GetName());
