@@ -161,11 +161,10 @@ cout << endl;
     TCanvas* canvas;
 
     for (uint i = 0; i < time_diffs.size(); i++) {
-        format canvas_name_fmt = format("p%1%%2%canvas");
-	format pdf_name_fmt = format("paddle_%1%_%2%_tdiff.pdf");
-	canvas_name_fmt % paddle_nums[i] % paddle_nums[i + 1];
-        pdf_name_fmt % paddle_nums[i] % paddle_nums[i + 1];
-        canvas = new TCanvas(canvas_name_fmt.str().c_str(), canvas_name_fmt.str().c_str(), 200, 10, 900, 900);
+	std::string canvas_name =(boost::format("p%1%%2%canvas") % paddle_nums[i] % paddle_nums[i+1]).str();
+	std::string pdf_name = (boost::format("paddle_%1%_%2%_tdiff.pdf") % paddle_nums[i] % paddle_nums[i+1]).str();
+	
+        canvas = new TCanvas(canvas_name.c_str(), canvas_name.c_str(), 200, 10, 900, 900);
         canvas->SetLeftMargin(0.11);
         canvas->SetTopMargin(0.08);
         canvas->SetRightMargin(0.04);
@@ -209,8 +208,8 @@ cout << endl;
             std::cerr <<"Warning: Fit failed for histogram " << time_diffs[i]->GetName() << std::endl;
         }
        
-        canvas->SaveAs(pdf_name_fmt.str().c_str());
-        canvas->Write(canvas->GetName());
+        canvas->SaveAs(pdf_name.c_str());
+        canvas->Write(canvas_name.c_str());
         time_diffs[i]->Write(time_diffs[i]->GetName());
     }
 
