@@ -158,13 +158,11 @@ cout << endl;
     TFile out_file(out_path.c_str(), "recreate");
     out_file.cd();
 
-    format canvas_name_fmt = format("p%1%%2%canvas");
-    format pdf_name_fmt = format("paddle_%1%_%2%_tdiff.pdf");
     TCanvas* canvas;
 
     for (uint i = 0; i < time_diffs.size(); i++) {
-        canvas_name_fmt % paddle_nums[i] % paddle_nums[i + 1];
-        pdf_name_fmt % paddle_nums[i] % paddle_nums[i + 1];
+        std::string canvas_name =(boost::format("p%1%%2%canvas") % paddle_nums[i] % paddle_nums[i+1]).str();
+	    std::string pdf_name = (boost::format("paddle_%1%_%2%_tdiff.pdf") % paddle_nums[i] % paddle_nums[i+1]).str();
         
         canvas = new TCanvas(canvas_name.c_str(), canvas_name.c_str(), 200, 10, 900, 900);
         canvas->SetLeftMargin(0.11);
