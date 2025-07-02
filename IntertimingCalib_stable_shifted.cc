@@ -208,7 +208,7 @@ cout << endl;
             legend->SetTextFont(42);
             legend->SetTextSize(0.03);
             legend->AddEntry(time_diffs[i], "Data (empty)", "l");
-            legend->Draw("SAME")
+            legend->Draw("SAME");
         }
 
         if (time_diffs[i]->GetEntries() == 0) {
