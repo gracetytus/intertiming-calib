@@ -158,12 +158,12 @@ cout << endl;
     TFile out_file(out_path.c_str(), "recreate");
     out_file.cd();
 
-    format canvas_name_fmt = format("p%1%%2%canvas");
-    format pdf_name_fmt = format("paddle_%1%_%2%_tdiff.pdf");
     TCanvas* canvas;
 
     for (uint i = 0; i < time_diffs.size(); i++) {
-        canvas_name_fmt % paddle_nums[i] % paddle_nums[i + 1];
+        format canvas_name_fmt = format("p%1%%2%canvas");
+	format pdf_name_fmt = format("paddle_%1%_%2%_tdiff.pdf");
+	canvas_name_fmt % paddle_nums[i] % paddle_nums[i + 1];
         pdf_name_fmt % paddle_nums[i] % paddle_nums[i + 1];
         canvas = new TCanvas(canvas_name_fmt.str().c_str(), canvas_name_fmt.str().c_str(), 200, 10, 900, 900);
         canvas->SetLeftMargin(0.11);
@@ -178,7 +178,6 @@ cout << endl;
         if (fitted_func) {
             fitted_func->SetLineColor(kRed);
             fitted_func->SetLineWidth(2);
-            fitted_func->SetName("Gaussian Fit");
 
             double par1 = fitted_func->GetParameter(1);
             double par2 = fitted_func->GetParameter(2);
@@ -189,7 +188,6 @@ cout << endl;
             time_diffs[i]->SetYTitle("Number of Events");
             time_diffs[i]->SetLineColor(kBlack);
             time_diffs[i]->Draw("HIST");
-            time_diffs[i]->SetName("Data");
             fitted_func->Draw("SAME");
 
 	    TLegend* legend = new TLegend(0.72, 0.78, 0.9, 0.9);
