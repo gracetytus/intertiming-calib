@@ -124,6 +124,7 @@ int main(int argc, char* argv[]){
     format canvas_name_fmt = format("p%1%%2%canvas");
     format pdf_name_fmt = format("paddle_%1%_%2%_tdiff.pdf");
     TCanvas* canvas;
+	
     for(uint i=0; i<time_diffs.size(); i++){
         canvas_name_fmt%paddle_nums[i]%paddle_nums[i+1];
         pdf_name_fmt%paddle_nums[i]%paddle_nums[i+1];
@@ -133,13 +134,14 @@ int main(int argc, char* argv[]){
         canvas->SetRightMargin(0.04);
         //canvas->SetLogy();
 
+	    
         time_diffs[i]->Fit("gaus");
         TF1* fitted_func = time_diffs[i]->TH1::GetFunction("gaus");
+	    
         if (fitted_func) {
             fitted_func->SetLineColor(kRed); 
             fitted_func->SetLineWidth(2); 
 
-        
             double par1 = fitted_func->GetParameter(1); 
             double par2 = fitted_func->GetParameter(2);
 
