@@ -158,14 +158,13 @@ cout << endl;
     TFile out_file(out_path.c_str(), "recreate");
     out_file.cd();
 
-    format canvas_name_fmt = format("p%1%%2%canvas");
-    format pdf_name_fmt = format("paddle_%1%_%2%_tdiff.pdf");
     TCanvas* canvas;
 
     for (uint i = 0; i < time_diffs.size(); i++) {
-        canvas_name_fmt % paddle_nums[i] % paddle_nums[i + 1];
-        pdf_name_fmt % paddle_nums[i] % paddle_nums[i + 1];
-        canvas = new TCanvas(canvas_name_fmt.str().c_str(), canvas_name_fmt.str().c_str(), 200, 10, 900, 900);
+	std::string canvas_name =(boost::format("p%1%%2%canvas") % paddle_nums[i] % paddle_nums[i+1]).str();
+	std::string pdf_name = (boost::format("paddle_%1%_%2%_tdiff.pdf") % paddle_nums[i] % paddle_nums[i+1]).str();
+	
+        canvas = new TCanvas(canvas_name.c_str(), canvas_name.c_str(), 200, 10, 900, 900);
         canvas->SetLeftMargin(0.11);
         canvas->SetTopMargin(0.08);
         canvas->SetRightMargin(0.04);
@@ -178,39 +177,39 @@ cout << endl;
         if (fitted_func) {
             fitted_func->SetLineColor(kRed);
             fitted_func->SetLineWidth(2);
-            fitted_func->SetName("Gaussian Fit");
 
             double par1 = fitted_func->GetParameter(1);
             double par2 = fitted_func->GetParameter(2);
-
-            TLegend* legend = new TLegend(0.65, 0.75, 0.9, 0.9);
-            legend->SetBorderSize(0);
-            legend->SetFillStyle(0);
-            legend->SetTextFont(42);
-            legend->SetTextSize(0.03);
-
-            legend->AddEntry(time_diffs[i], "Data", "l");
-            legend->AddEntry(fitted_func, "Gaussian Fit", "l");
-            legend->AddEntry((TObject*)0, (boost::format("#mu = %.3f ns") % par1).str().c_str(), "");
-            legend->AddEntry((TObject*)0, (boost::format("#sigma = %.3f ns") % par2).str().c_str(), "");
-            legend->Draw("SAME");
+	    int n_entries = time_diffs[i]->GetEntries();
 
             time_diffs[i]->SetTitle("");
             time_diffs[i]->SetXTitle("Time Difference [ns]");
             time_diffs[i]->SetYTitle("Number of Events");
             time_diffs[i]->SetLineColor(kBlack);
             time_diffs[i]->Draw("HIST");
-            time_diffs[i]->SetName("Data");
             fitted_func->Draw("SAME");
+
+	    TLegend* legend = new TLegend(0.72, 0.78, 0.9, 0.9);
+            legend->SetBorderSize(0);
+            legend->SetFillStyle(0);
+            legend->SetTextFont(42);
+            legend->SetTextSize(0.02);
+		
+	    legend->AddEntry((TObject*)0, (boost::format("Events = %d") % n_entries).str().c_str(), "");
+            legend->AddEntry(time_diffs[i], "Data", "l");
+            legend->AddEntry(fitted_func, "Gaussian Fit", "l");
+            legend->AddEntry((TObject*)0, (boost::format("#mu = %.3f ns") % par1).str().c_str(), "");
+            legend->AddEntry((TObject*)0, (boost::format("#sigma = %.3f ns") % par2).str().c_str(), "");
+            legend->Draw("SAME");
         }
 
         else {
             time_diffs[i]->Draw("HIST");
-            std:cerr <<"Warning: Fit failed for histogram " << time_diffs[i]->GetName() << std::endl;
+            std::cerr <<"Warning: Fit failed for histogram " << time_diffs[i]->GetName() << std::endl;
         }
        
-        canvas->SaveAs(pdf_name_fmt.str().c_str());
-        canvas->Write(canvas->GetName());
+        canvas->SaveAs(pdf_name.c_str());
+        canvas->Write(canvas_name.c_str());
         time_diffs[i]->Write(time_diffs[i]->GetName());
     }
 
