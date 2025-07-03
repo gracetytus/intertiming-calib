@@ -62,3 +62,7 @@ target_link_libraries(doubleGauss ${LIB_DIRS})
 add_executable(BigBoy2 globby_boy2.cc)
 target_include_directories(BigBoy2 PRIVATE ${GAPS_INCLUDE_DIRS}/gaps)
 target_link_libraries(BigBoy2 ${LIB_DIRS})
+
+add_executable(SingleLady single_gauss_glob.cc)
+target_include_directories(SingleLady PRIVATE ${GAPS_INCLUDE_DIRS}/gaps)
+target_link_libraries(SingleLady ${LIB_DIRS})

@@ -99,7 +99,7 @@ int main(int argc, char* argv[]) {
     combined_hist->Draw("HIST");
 
     combined_hist->Fit("gaus", "Q");
-    TFI* fit_func = combined_hist->TH1::GetFunction("gaus");
+    TF1* fit_func = combined_hist->TH1::GetFunction("gaus");
 
     fit_func->SetLineColor(kRed);
     fit_func->SetLineWidth(2);
@@ -118,11 +118,14 @@ int main(int argc, char* argv[]) {
     legend->Draw("SAME");
 
     // === Step 4: Save ===
+    TFile* out_file = new TFile("combined_tdiff_single_gauss.root", "RECREATE");
+    out_file->cd();
+
     canvas->SaveAs("combined_tdiff_single_gauss.pdf");
-    canvas->Write("combinedcanvas_single_gauss.root");
+    canvas->Write("combinedcanvas_single_gauss");
     combined_hist->Write(combined_hist->GetName());
     
-
+    out_file->Close();
     cout << "Combined histogram and canvas saved to combined_tdiff_single_gauss.root and combined_tdiff_single_gauss.pdf" << endl;
     return 0;
 }

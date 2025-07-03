@@ -44,9 +44,7 @@ int main(int argc, char* argv[]) {
         "p14_out.root", 
         "p15_out.root", 
         "p16_out.root", 
-        "p17_out.root", 
-        "p18_out.root", 
-        "p19_out.root", 
+        "p17_out.root",  
         "p20_out.root", 
         "p21_out.root"
     };
