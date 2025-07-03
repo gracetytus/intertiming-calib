@@ -129,9 +129,11 @@ int main(int argc, char* argv[]) {
     legend->AddEntry((TObject*)0, (boost::format("#sigma_{2} = %.3f ns") % f->GetParameter(5)).str().c_str(), "");
     legend->Draw("SAME");
 
-    // === Step 4: Save ===
+    TFile* out_file = new TFile("combined_tdiff_double_gauss.root", "RECREATE");
+    out_file->cd();
+
     canvas->SaveAs("combined_tdiff.pdf");
-    canvas->Write("combinedcanvas.root");
+    canvas->Write("combined_canvas_double");
     combined_hist->Write(combined_hist->GetName());
     
 
