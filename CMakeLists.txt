@@ -51,6 +51,14 @@ add_executable(IntertimingShifted IntertimingCalib_stable_shifted.cc)
 target_include_directories(IntertimingShifted PRIVATE ${GAPS_INCLUDE_DIRS}/gaps)
 target_link_libraries(IntertimingShifted ${LIB_DIRS})
 
-#add_executable(MakeHist make_hist.cc)
-#target_include_directories(MakeHist PRIVATE ${GAPS_INCLUDE_DIRS}/gaps)
-#target_link_libraries(MakeHist ${LIB_DIRS})
+add_executable(BigBoy glob_plot.cc)
+target_include_directories(BigBoy PRIVATE ${GAPS_INCLUDE_DIRS}/gaps)
+target_link_libraries(BigBoy ${LIB_DIRS})
+
+add_executable(doubleGauss double_gauss_shifted.cc)
+target_include_directories(doubleGauss PRIVATE ${GAPS_INCLUDE_DIRS}/gaps)
+target_link_libraries(doubleGauss ${LIB_DIRS})
+
+add_executable(BigBoy2 globby_boy2.cc)
+target_include_directories(BigBoy2 PRIVATE ${GAPS_INCLUDE_DIRS}/gaps)
+target_link_libraries(BigBoy2 ${LIB_DIRS})

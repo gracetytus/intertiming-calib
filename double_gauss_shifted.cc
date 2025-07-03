@@ -175,20 +175,14 @@ cout << endl;
         time_diffs[i]->SetLineColor(kBlack);
         time_diffs[i]->Draw("HIST");
 
-        double fit_range_min = -5.0;
-        double fit_range_max = 5.0;
+        double fit_range_min = -3.0;
+        double fit_range_max = 3.0;
+	double hist_mean = time_diffs[i]->GetMean();
+	double hist_sigma = time_diffs[i]->GetRMS();
+	double hist_peak = time_diffs[i]->GetBinContent(time_diffs[i]->GetMaximumBin());
 
-        // First Gaussian
-        TF1* G1 = new TF1("G1", "gaus", fit_range_min, fit_range_max);
-        time_diffs[i]->Fit(G1, "RQ0"); // Quiet + Range, no drawing
-
-        // Second Gaussian (can tweak range or shift starting params)
-        TF1* G2 = new TF1("G2", "gaus", fit_range_min, fit_range_max);
-        time_diffs[i]->Fit(G2, "RQ0+"); // Use '+' to add to previous fit
-
-        double par[6];
-        G1->GetParameters(&par[0]);  // p0, p1, p2
-        G2->GetParameters(&par[3]);  // p3, p4, p5
+        double par[6] = {hist_peak, hist_mean, hist_sigma, 0.01*hist_peak, hist_mean, 2*hist_sigma};
+        
 
         TF1* f = new TF1("f", "gaus(0)+gaus(3)", fit_range_min, fit_range_max);
         f->SetParameters(par);
