@@ -30,12 +30,12 @@ int main(int argc, char* argv[]) {
         "p1_out.root",
         "p2a_out.root",
 	"p2b_out.root",
-	"p7_out.root",
-	"p8_out.root",
+	"p7_out.root", 
+	"p8_out.root", 
 	"p9_out.root", 
-	"p10_out.root", 
+	"p10_out.root",
 	"p11_out.root", 
-	"p12_out.root",
+	"p12_out.root", 
 	"p13_out.root"
     };
 
@@ -134,14 +134,13 @@ int main(int argc, char* argv[]) {
     
     legend->Draw("SAME");
 
-    TFile* out_file = new TFile("horiz_tdiff_double_gauss.root", "RECREATE");
+    canvas->SaveAs("horiz_combined_tdiff_double_gauss.pdf");
+
+    TFile* out_file = new TFile("horiz_combined_tdiff_double_gauss.root", "RECREATE");
     out_file->cd();
     canvas->Write("horiz_canvas");
     combined_hist->Write("horiz_tdiff");
-    f->Write("horiz_double_gaussian_fit");
     out_file->Close();
-
-    canvas->SaveAs("horiz_combined_tdiff_double_gauss.pdf");
 
     return 0;
 }
