@@ -30,7 +30,13 @@ int main(int argc, char* argv[]) {
         "p1_out.root",
         "p2a_out.root",
 	"p2b_out.root",
-	"p7_out.root"
+	"p7_out.root",
+	"p8_out.root",
+	"p9_out.root", 
+	"p10_out.root", 
+	"p11_out.root", 
+	"p12_out.root",
+	"p13_out.root"
     };
 
     TH1D* combined_hist = nullptr;
@@ -51,7 +57,7 @@ int main(int argc, char* argv[]) {
 
             TH1D* h = (TH1D*)obj;
             if (!combined_hist) {
-                combined_hist = (TH1D*)h->Clone("combined_tdiff");
+                combined_hist = (TH1D*)h->Clone("horiz_tdiff");
                 combined_hist->SetDirectory(0);  // Detach from file
             } else {
                 h->SetDirectory(0);
@@ -69,7 +75,7 @@ int main(int argc, char* argv[]) {
     }
 	
     int n_entries = combined_hist->GetEntries();
-    TCanvas* canvas = new TCanvas("combined_canvas", "Combined Time Difference", 800, 800);
+    TCanvas* canvas = new TCanvas("horiz_canvas", "Combined Time Difference", 800, 800);
     canvas->SetLeftMargin(0.12);
     canvas->SetTopMargin(0.08);
     canvas->SetRightMargin(0.04);
@@ -128,14 +134,14 @@ int main(int argc, char* argv[]) {
     
     legend->Draw("SAME");
 
-    TFile* out_file = new TFile("combined_tdiff_double_gauss.root", "RECREATE");
+    TFile* out_file = new TFile("horiz_tdiff_double_gauss.root", "RECREATE");
     out_file->cd();
-    canvas->Write("combined_canvas");
-    combined_hist->Write("combined_hist");
-    f->Write("double_gaussian_fit");
+    canvas->Write("horiz_canvas");
+    combined_hist->Write("horiz_tdiff");
+    f->Write("horiz_double_gaussian_fit");
     out_file->Close();
 
-    canvas->SaveAs("combined_tdiff_double_gauss.pdf");
+    canvas->SaveAs("horiz_combined_tdiff_double_gauss.pdf");
 
     return 0;
 }
