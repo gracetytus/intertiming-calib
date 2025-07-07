@@ -27,28 +27,7 @@ int main(int argc, char* argv[]) {
 
     vector<string> input_files = {
         "p1_out.root",
-        "p2a_out.root", 
-        "p2b_out.root",
-        "p3_out.root", 
-        "p4_out.root", 
-        "p5a_out.root",
-        "p5b_out.root", 
-        "p6_out.root", 
         "p7_out.root", 
-        "p8_out.root", 
-        "p9_out.root", 
-        "p10_out.root", 
-        "p11_out.root", 
-        "p12_out.root", 
-        "p13_out.root", 
-        "p14_out.root", 
-        "p15_out.root", 
-        "p16_out.root", 
-        "p17_out.root", 
-        "p18_out.root", 
-        "p19_out.root", 
-        "p20_out.root", 
-        "p21_out.root"
     };
 
     TH1D* combined_hist = nullptr;

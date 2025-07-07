@@ -26,27 +26,8 @@ int main(int argc, char* argv[]) {
     gStyle->SetOptStat(0);
 
     vector<string> input_files = {
-        "p1_out.root",
-        "p2a_out.root", 
-        "p2b_out.root",
-        "p3_out.root", 
-        "p4_out.root", 
-        "p5a_out.root",
-        "p5b_out.root", 
-        "p6_out.root", 
-        "p7_out.root", 
-        "p8_out.root", 
-        "p9_out.root", 
-        "p10_out.root", 
-        "p11_out.root", 
-        "p12_out.root", 
-        "p13_out.root", 
-        "p14_out.root", 
-        "p15_out.root", 
-        "p16_out.root", 
-        "p17_out.root",  
-        "p20_out.root", 
-        "p21_out.root"
+        "p1_out.root", 
+      	"p7_out.root"
     };
 
     TH1D* combined_hist = nullptr;
@@ -70,7 +51,8 @@ int main(int argc, char* argv[]) {
                 combined_hist = (TH1D*)h->Clone("combined_tdiff");
                 combined_hist->SetDirectory(0);  // Detach from file
             } else {
-                combined_hist->Add(h);
+                h->SetDirectory(0);
+		combined_hist->Add(h);
             }
         }
 
@@ -120,6 +102,7 @@ int main(int argc, char* argv[]) {
     legend->SetFillStyle(0);
     legend->SetTextFont(42);
     legend->SetTextSize(0.03);
+
     legend->AddEntry((TObject*)0, (boost::format("Events = %d") % n_entries).str().c_str(), "");
     legend->AddEntry(combined_hist, "Combined Data", "l");
     legend->AddEntry(fit_func, "Gaussian Fit", "l");
@@ -131,12 +114,12 @@ int main(int argc, char* argv[]) {
 
     TFile* out_file = new TFile("combined_tdiff_double_gauss.root", "RECREATE");
     out_file->cd();
+    canvas->Write("combined_canvas");
+    combined_hist->Write("combined_hist");
+    f->Write("double_gaussian_fit");
+    out_file->Close();
 
-    canvas->SaveAs("combined_tdiff.pdf");
-    canvas->Write("combined_canvas_double");
-    combined_hist->Write(combined_hist->GetName());
-    
+    canvas->SaveAs("combined_tdiff_double_gauss.pdf");
 
-    cout << "Combined histogram and canvas saved to combined_tdiff.root and combined_tdiff.pdf" << endl;
     return 0;
 }
