@@ -10,6 +10,7 @@
 #include <vector>
 #include <string>
 #include <boost/format.hpp>
+#include <cmath>
 
 using std::vector;
 using std::string;
@@ -26,8 +27,29 @@ int main(int argc, char* argv[]) {
     gStyle->SetOptStat(0);
 
     vector<string> input_files = {
-        "p1_out.root", 
-      	"p7_out.root"
+        "p1_out.root",
+        "p2a_out.root",
+	"p2b_out.root",
+	"p3_out.root",
+	"p4_out.root",
+	"p5a_out.root",
+	"p5b_out.root",
+	"p6_out.root",
+	"p7_out.root",
+	"p8_out.root", 
+	"p9_out.root", 
+	"p10_out.root",
+	"p11_out.root",
+	"p12_out.root", 
+	"p13_out.root", 
+	"p14_out.root", 
+	"p15_out.root", 
+	"p16_out.root", 
+	"p17_out.root", 
+	"p18_out.root", 
+	"p19_out.root", 
+	"p20_out.root", 
+	"p21_out.root"
     };
 
     TH1D* combined_hist = nullptr;
@@ -97,7 +119,17 @@ int main(int argc, char* argv[]) {
     f->SetLineWidth(2);
     f->Draw("SAME");
 
-    TLegend* legend = new TLegend(0.65, 0.75, 0.9, 0.9);
+    const double PI = 3.14159265358979323846;
+
+    double amp1 = f->GetParameter(0);
+    double sigma1 = f->GetParameter(2);
+    double area1 = amp1 * sigma1 * std::sqrt(2 * PI);
+
+    double amp2 = f->GetParameter(3);
+    double sigma2 = f->GetParameter(5);
+    double area2 = amp2 * sigma2 * std::sqrt(2 * PI);
+
+    TLegend* legend = new TLegend(0.62, 0.64, 0.9, 0.9);
     legend->SetBorderSize(0);
     legend->SetFillStyle(0);
     legend->SetTextFont(42);
@@ -110,6 +142,9 @@ int main(int argc, char* argv[]) {
     legend->AddEntry((TObject*)0, (boost::format("#sigma_{1} = %.3f ns") % f->GetParameter(2)).str().c_str(), "");
     legend->AddEntry((TObject*)0, (boost::format("#mu_{2} = %.3f ns") % f->GetParameter(4)).str().c_str(), "");
     legend->AddEntry((TObject*)0, (boost::format("#sigma_{2} = %.3f ns") % f->GetParameter(5)).str().c_str(), "");
+    legend->AddEntry((TObject*)0, (boost::format("Area_{1} = %.0f") % area1).str().c_str(), "");
+    legend->AddEntry((TObject*)0, (boost::format("Area_{2} = %.0f") % area2).str().c_str(), "");
+    
     legend->Draw("SAME");
 
     TFile* out_file = new TFile("combined_tdiff_double_gauss.root", "RECREATE");
