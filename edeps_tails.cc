@@ -174,8 +174,12 @@ int main(int argc, char* argv[]) {
     legend->AddEntry(tail_edep_hist, "Data", "l");
     legend->Draw("SAME");
 
-    canvas->SaveAs("tail_edep_hist.pdf");
-    canvas->Write("tail_edep_canvas");
-    tail_edep_hist->Write("tail_edeps");
+    std::string canvas_name = panel_id + "_tail_edep_canvas";
+    std::string pdf_name = panel_id + "_tail_edep_hist.pdf";
+    std::string hist_name = panel_id + "_tail_edeps";
+
+    canvas->SaveAs(pdf_name.c_str());
+    canvas->Write(canvas_name.c_str());
+    tail_edep_hist->Write(hist_name.c_str());
 
     out_file.Close();
