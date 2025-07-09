@@ -105,12 +105,34 @@ int main(int argc, char* argv[]) {
     progressbar progress(Instrument_Events->GetEntries() / 1000);
 
     Instrument_Events->SetBranchAddress("Rec", &Event);
+
     for (uint i = 0; i < Instrument_Events->GetEntries(); i++) {
         Instrument_Events->GetEntry(i);
-	if(i%1000==0){
+	    if(i%1000==0){
         	progress.update();
-	}
+	    }
+
         if (Event->GetNTracks() != 1) continue;
+
+        vector<int> tof_track_indices = Event->GetHitTrackIndex();
+        bool skip_event = false;
+        int first_idx = -2;  // arbitrary invalid default
+
+        for (size_t j = 0; j < tof_track_indices.size(); j++) {
+            int idx = tof_track_indices[j];
+            if (idx == -1) {
+                skip_event = true;
+                break;
+            }
+            if (j == 0) {
+                first_idx = idx;
+            } else if (idx != first_idx) {
+                skip_event = true;
+                break;
+            }
+        }
+
+        if (skip_event) continue;
 
         bool is_outer_tof = false; 
         bool is_inner_tof = false;
@@ -146,7 +168,7 @@ int main(int argc, char* argv[]) {
         }
 
         if (n_relevant_hits < 2) continue;
-        
+
         if (!(is_outer_tof && is_inner_tof)) {
         continue;  // Skip this event
         }
