@@ -27,28 +27,18 @@ int main(int argc, char* argv[]) {
     gStyle->SetOptStat(0);
 
     vector<string> input_files = {
-        "p1_out.root",
-        "p2a_out.root",
-	"p2b_out.root",
-	"p3_out.root",
-	"p4_out.root",
-	"p5a_out.root",
-	"p5b_out.root",
+        "p3_out.root", 
+	"p4_out.root", 
+	"p5a_out.root", 
+	"p5b_out.root", 
 	"p6_out.root",
-	"p7_out.root",
-	"p8_out.root", 
-	"p9_out.root", 
-	"p10_out.root",
-	"p11_out.root",
-	"p12_out.root", 
-	"p13_out.root", 
-	"p14_out.root", 
-	"p15_out.root", 
+	"p14_out.root",
+	"p15_out.root",
 	"p16_out.root", 
-	"p17_out.root", 
-	"p18_out.root", 
-	"p19_out.root", 
-	"p20_out.root", 
+	"p17_out.root",
+	"p18_out.root",
+	"p19_out.root",
+	"p20_out.root",
 	"p21_out.root"
     };
 
@@ -70,7 +60,7 @@ int main(int argc, char* argv[]) {
 
             TH1D* h = (TH1D*)obj;
             if (!combined_hist) {
-                combined_hist = (TH1D*)h->Clone("combined_tdiff");
+                combined_hist = (TH1D*)h->Clone("vert_tdiff");
                 combined_hist->SetDirectory(0);  // Detach from file
             } else {
                 h->SetDirectory(0);
@@ -88,7 +78,7 @@ int main(int argc, char* argv[]) {
     }
 	
     int n_entries = combined_hist->GetEntries();
-    TCanvas* canvas = new TCanvas("combined_canvas", "Combined Time Difference", 800, 800);
+    TCanvas* canvas = new TCanvas("vert_canvas", "Combined Time Difference", 800, 800);
     canvas->SetLeftMargin(0.12);
     canvas->SetTopMargin(0.08);
     canvas->SetRightMargin(0.04);
@@ -109,7 +99,7 @@ int main(int argc, char* argv[]) {
     double hist_sigma = combined_hist->GetRMS();
     double hist_peak = combined_hist->GetBinContent(combined_hist->GetMaximumBin());
 
-    double par[6] = {hist_peak, hist_mean, hist_sigma, 0.01*hist_peak, hist_mean, 2*hist_sigma};
+    double par[6] = {hist_peak, hist_mean, hist_sigma, 0.1*hist_peak, hist_mean, 2*hist_sigma};
 
     TF1* f = new TF1("f", "gaus(0)+gaus(3)", fit_range_min, fit_range_max);
     f->SetParameters(par);
@@ -137,7 +127,7 @@ int main(int argc, char* argv[]) {
 
     legend->AddEntry((TObject*)0, (boost::format("Events = %d") % n_entries).str().c_str(), "");
     legend->AddEntry(combined_hist, "Combined Data", "l");
-    legend->AddEntry(fit_func, "Gaussian Fit", "l");
+    legend->AddEntry(f, "Gaussian Fit", "l");
     legend->AddEntry((TObject*)0, (boost::format("#mu_{1} = %.3f ns") % f->GetParameter(1)).str().c_str(), "");
     legend->AddEntry((TObject*)0, (boost::format("#sigma_{1} = %.3f ns") % f->GetParameter(2)).str().c_str(), "");
     legend->AddEntry((TObject*)0, (boost::format("#mu_{2} = %.3f ns") % f->GetParameter(4)).str().c_str(), "");
@@ -147,14 +137,13 @@ int main(int argc, char* argv[]) {
     
     legend->Draw("SAME");
 
-    TFile* out_file = new TFile("combined_tdiff_double_gauss.root", "RECREATE");
-    out_file->cd();
-    canvas->Write("combined_canvas");
-    combined_hist->Write("combined_hist");
-    f->Write("double_gaussian_fit");
-    out_file->Close();
+    canvas->SaveAs("vert_combined_tdiff_double_gauss.pdf");
 
-    canvas->SaveAs("combined_tdiff_double_gauss.pdf");
+    TFile* out_file = new TFile("vert_combined_tdiff_double_gauss.root", "RECREATE");
+    out_file->cd();
+    canvas->Write("vert_canvas");
+    combined_hist->Write("vert_tdiff");
+    out_file->Close();
 
     return 0;
 }

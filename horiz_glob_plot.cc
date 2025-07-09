@@ -96,7 +96,7 @@ int main(int argc, char* argv[]) {
     double hist_sigma = combined_hist->GetRMS();
     double hist_peak = combined_hist->GetBinContent(combined_hist->GetMaximumBin());
 
-    double par[6] = {hist_peak, hist_mean, hist_sigma, 0.01*hist_peak, hist_mean, 2*hist_sigma};
+    double par[6] = {hist_peak, hist_mean, hist_sigma, 0.1*hist_peak, hist_mean, 2*hist_sigma};
 
     TF1* f = new TF1("f", "gaus(0)+gaus(3)", fit_range_min, fit_range_max);
     f->SetParameters(par);
@@ -124,7 +124,7 @@ int main(int argc, char* argv[]) {
 
     legend->AddEntry((TObject*)0, (boost::format("Events = %d") % n_entries).str().c_str(), "");
     legend->AddEntry(combined_hist, "Combined Data", "l");
-    legend->AddEntry(fit_func, "Gaussian Fit", "l");
+    legend->AddEntry(f, "Gaussian Fit", "l");
     legend->AddEntry((TObject*)0, (boost::format("#mu_{1} = %.3f ns") % f->GetParameter(1)).str().c_str(), "");
     legend->AddEntry((TObject*)0, (boost::format("#sigma_{1} = %.3f ns") % f->GetParameter(2)).str().c_str(), "");
     legend->AddEntry((TObject*)0, (boost::format("#mu_{2} = %.3f ns") % f->GetParameter(4)).str().c_str(), "");
