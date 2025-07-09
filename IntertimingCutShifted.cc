@@ -119,7 +119,7 @@ int main(int argc, char* argv[]) {
 	}
     if (Event->GetNTracks() != 1) continue;
 
-    vector<int> tof_track_indicies = Event->GetHitTrackIndex();
+    vector<int> tof_track_indices = Event->GetHitTrackIndex();
     bool skip_event = false;
     int first_idx = -2;
 
@@ -194,7 +194,7 @@ cout << endl;
 
     for (uint i = 0; i < time_diffs.size(); i++) {
 	std::string canvas_name =(boost::format("p%1%%2%canvas") % paddle_nums[i] % paddle_nums[i+1]).str();
-	std::string pdf_name = (boost::format("paddle_%1%_%2%_tdiff.pdf") % paddle_nums[i] % paddle_nums[i+1]).str();
+	std::string pdf_name = (boost::format("paddle_%1%_%2%_tdiff_cut.pdf") % paddle_nums[i] % paddle_nums[i+1]).str();
 	
         canvas = new TCanvas(canvas_name.c_str(), canvas_name.c_str(), 200, 10, 900, 900);
         canvas->SetLeftMargin(0.11);
