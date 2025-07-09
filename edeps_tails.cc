@@ -100,6 +100,8 @@ int main(int argc, char* argv[]) {
     // initialize volume id and n_hits, initialize progress bar
     int vol_id = 0, n_relevant_hits = 0;
     double edep = 0;
+
+
     progressbar progress(Instrument_Events->GetEntries() / 1000);
 
     Instrument_Events->SetBranchAddress("Rec", &Event);
@@ -110,7 +112,10 @@ int main(int argc, char* argv[]) {
 	}
         if (Event->GetNTracks() != 1) continue;
 
+        bool is_outer_tof = false; 
+        bool is_inner_tof = false;
         n_relevant_hits = 0;
+
         fill(paddle_times.begin(), paddle_times.end(), -1);
         fill(paddle_edeps.begin(), paddle_edeps.end(), -1);
         fill(paddle_times_raw.begin(), paddle_times_raw.end(), -1);
@@ -121,17 +126,30 @@ int main(int argc, char* argv[]) {
             edep = hit.GetTotalEnergyDeposition();
 
             if (GGeometryObject::IsTofVolume(vol_id)) {
+                if (GGeometryObject::IsUmbrellaVolume(vol_id)) {
+                    is_outer_tof = true;
+                }
+
+                if (GGeometryObject::IsCubeVolume(vol_id)) {
+                    is_inner_tof = true;
+                }
+
+                // Check if this hit matches one of the paddle_ids
                 for (uint j = 0; j < paddle_ids.size(); j++) {
                     if (vol_id == paddle_ids[j]) {
                         paddle_times_raw[j] = hit.GetTime();
                         paddle_edeps[j] = edep;
                         n_relevant_hits++;
-                    }
+                        }
                 }
             }
         }
 
         if (n_relevant_hits < 2) continue;
+        
+        if (!(is_outer_tof && is_inner_tof)) {
+        continue;  // Skip this event
+        }
 
         for (uint j = 0; j < paddle_times.size(); j++) {
             if (paddle_times_raw[j] > 0) {
