@@ -79,7 +79,7 @@ int main(int argc, char* argv[]) {
     	paddle_ids[i] = vol_id_base + paddle_ids_suffix[i];
     }
 
-    TH1D* tail_edep_hist = new TH1D("tail_edeps", "Energy Depositions of tail events;Edep;Counts", 150, -5, 5);
+    TH1D* tail_edep_hist = new TH1D("tail_edeps", "Energy Depositions of tail events;Edep;Counts", 150, 0, 25);
 
     // initialize vectors that hold space for each paddle time and raw time based on the length of the paddle_nums vector
     vector<double> paddle_times(paddle_nums.size());
@@ -99,6 +99,7 @@ int main(int argc, char* argv[]) {
 
     // initialize volume id and n_hits, initialize progress bar
     int vol_id = 0, n_relevant_hits = 0;
+    double edep = 0;
     progressbar progress(Instrument_Events->GetEntries() / 1000);
 
     Instrument_Events->SetBranchAddress("Rec", &Event);
@@ -117,7 +118,8 @@ int main(int argc, char* argv[]) {
 
         for (GRecoHit hit : Event->GetHitSeries()) {
             vol_id = hit.GetVolumeId();
-            edep = hit.GetEdep();
+            edep = hit.GetTotalEnergyDeposition();
+
             if (GGeometryObject::IsTofVolume(vol_id)) {
                 for (uint j = 0; j < paddle_ids.size(); j++) {
                     if (vol_id == paddle_ids[j]) {
@@ -183,3 +185,5 @@ int main(int argc, char* argv[]) {
     tail_edep_hist->Write(hist_name.c_str());
 
     out_file.Close();
+
+}
