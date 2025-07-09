@@ -1,9 +1,4 @@
 
-+6
--2
-Lines changed: 6 additions & 2 deletions
-Original file line number	Diff line number	Diff line change
-@@ -1,185 +1,189 @@
 #include <TFile.h>
 #include <TTree.h>
 #include <TChain.h>
@@ -85,7 +80,6 @@ int main(int argc, char* argv[]) {
     	paddle_ids[i] = vol_id_base + paddle_ids_suffix[i];
     }
 
-    TH1D* tail_edep_hist = new TH1D("tail_edeps", "Energy Depositions of tail events;Edep;Counts", 150, -5, 5);
     TH1D* tail_edep_hist = new TH1D("tail_edeps", "Energy Depositions of tail events;Edep;Counts", 150, 0, 25);
 
     // initialize vectors that hold space for each paddle time and raw time based on the length of the paddle_nums vector
@@ -125,7 +119,6 @@ int main(int argc, char* argv[]) {
 
         for (GRecoHit hit : Event->GetHitSeries()) {
             vol_id = hit.GetVolumeId();
-            edep = hit.GetEdep();
             edep = hit.GetTotalEnergyDeposition();
             if (GGeometryObject::IsTofVolume(vol_id)) {
                 for (uint j = 0; j < paddle_ids.size(); j++) {
@@ -183,9 +176,9 @@ int main(int argc, char* argv[]) {
     legend->AddEntry(tail_edep_hist, "Data", "l");
     legend->Draw("SAME");
 
-    std::string canvas_name = panel_id + "_tail_edep_canvas";
-    std::string pdf_name = panel_id + "_tail_edep_hist.pdf";
-    std::string hist_name = panel_id + "_tail_edeps";
+    std::string canvas_name = panel_id + "_tail_edep_canvas_uncut";
+    std::string pdf_name = panel_id + "_tail_edep_hist_uncut.pdf";
+    std::string hist_name = panel_id + "_tail_edeps_uncut";
 
     canvas->SaveAs(pdf_name.c_str());
     canvas->Write(canvas_name.c_str());
