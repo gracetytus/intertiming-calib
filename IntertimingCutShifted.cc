@@ -117,40 +117,72 @@ int main(int argc, char* argv[]) {
 	if(i%1000==0){
         	progress.update();
 	}
-        if (Event->GetNTracks() != 1) continue;
+    if (Event->GetNTracks() != 1) continue;
 
-        n_relevant_hits = 0;
-        fill(paddle_times.begin(), paddle_times.end(), -1);
-        fill(paddle_times_raw.begin(), paddle_times_raw.end(), -1);
+    vector<int> tof_track_indicies = Event->GetHitTrackIndex();
+    bool skip_event = false;
+    int first_idx = -2;
 
-        for (GRecoHit hit : Event->GetHitSeries()) {
-            vol_id = hit.GetVolumeId();
-            if (GGeometryObject::IsTofVolume(vol_id)) {
-                for (uint j = 0; j < paddle_ids.size(); j++) {
-                    if (vol_id == paddle_ids[j]) {
-                        paddle_times_raw[j] = hit.GetTime();
-                        n_relevant_hits++;
-                    }
+    for (size_t j=0; j < tof_track_indices.size(); j++) {
+        int idx = tof_track_indices[j];
+        if (idx == -1) {
+            skip_event = true;
+            break;
+        }
+        if (j==0) {
+            first_idx = idx;
+        } else if (idx != first_idx) {
+            skip_event = true;
+            break;
+        }
+    }
+
+    if (skip_event) continue;
+    
+    bool is_outer_tof = false;
+    bool is_inner_tof = false;
+    n_relevant_hits = 0;
+
+    fill(paddle_times.begin(), paddle_times.end(), -1);
+    fill(paddle_times_raw.begin(), paddle_times_raw.end(), -1);
+
+    for (GRecoHit hit : Event->GetHitSeries()) {
+        vol_id = hit.GetVolumeId();
+        if (GGeometryObject::IsTofVolume(vol_id)) {
+            if (GGeometryObject::IsUmbrellaVolume(vol_id)) {
+                is_outer_tof = true;
+            }
+            if (GGeometryObject::IsCubeVolume(vol_id)) {
+                is_inner_tof = true;
+            }
+            for (uint j = 0; j < paddle_ids.size(); j++) {
+                if (vol_id == paddle_ids[j]) {
+                    paddle_times_raw[j] = hit.GetTime();
+                    n_relevant_hits++;
                 }
             }
         }
+    }
 
-        if (n_relevant_hits < 2) continue;
+    if (n_relevant_hits < 2) continue;
 
-     
-        for (uint j = 0; j < paddle_times.size(); j++) {
-            if (paddle_times_raw[j] > 0) {
-                paddle_times[j] = paddle_times_raw[j] - offsets[j];
-            }
-        }
-
-        for (uint j = 0; j < paddle_ids.size() - 1; j++) {
-            if ((paddle_times[j] > 0) && (paddle_times[j + 1] > 0)) {
-                double t_diff = paddle_times[j] - paddle_times[j + 1];
-                time_diffs[j]->Fill(t_diff);
-            }
+    if (!(is_outer_tof && is_inner_tof)) {
+        continue;
+    }
+    
+    for (uint j = 0; j < paddle_times.size(); j++) {
+        if (paddle_times_raw[j] > 0) {
+            paddle_times[j] = paddle_times_raw[j] - offsets[j];
         }
     }
+
+    for (uint j = 0; j < paddle_ids.size() - 1; j++) {
+        if ((paddle_times[j] > 0) && (paddle_times[j + 1] > 0)) {
+            double t_diff = paddle_times[j] - paddle_times[j + 1];
+            time_diffs[j]->Fill(t_diff);
+        }
+    }
+}
 
 cout << endl;   
 
