@@ -67,6 +67,18 @@ add_executable(VBigBoy vert_glob_plot.cc)
 target_include_directories(VBigBoy PRIVATE ${GAPS_INCLUDE_DIRS}/gaps)
 target_link_libraries(VBigBoy ${LIB_DIRS})
 
+add_executable(TailEdep edeps_tails.cc)
+target_include_directories(TailEdep PRIVATE ${GAPS_INCLUDE_DIRS}/gaps)
+target_link_libraries(TailEdep ${LIB_DIRS})
+
+#add_executable(TailPID paddle_dist_tails.cc)
+#target_include_directories(TailPID PRIVATE ${GAPS_INCLUDE_DIRS}/gaps)
+#target_link_libraries(TailPID ${LIB_DIRS})
+
+add_executable(IntertimingCutShifted IntertimingCutShifted.cc)
+target_include_directories(IntertimingCutShifted PRIVATE ${GAPS_INCLUDE_DIRS}/gaps)
+target_link_libraries(IntertimingCutShifted ${LIB_DIRS})
+
 add_executable(SingleLady single_gauss_glob.cc)
 target_include_directories(SingleLady PRIVATE ${GAPS_INCLUDE_DIRS}/gaps)
 target_link_libraries(SingleLady ${LIB_DIRS})
