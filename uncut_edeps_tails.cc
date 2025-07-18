@@ -151,8 +151,8 @@ int main(int argc, char* argv[]) {
     }
 
    // === Output histogram ===
-    TFile out_file(out_path.c_str(), "RECREATE");
-    out_file.cd();
+    TFile* out_file = new TFile(out_path.c_str(), "RECREATE");
+    out_file->cd();
 
     TCanvas* canvas = new TCanvas("tail_edep_canvas", "tail_edep_canvas", 200, 10, 900, 900);
     canvas->SetLeftMargin(0.11);
@@ -184,5 +184,6 @@ int main(int argc, char* argv[]) {
     canvas->Write(canvas_name.c_str());
     tail_edep_hist->Write(hist_name.c_str());
 
-    out_file.Close();
+    out_file->Close();
+    delete out_file;
 }
