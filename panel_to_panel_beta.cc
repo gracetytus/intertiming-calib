@@ -310,13 +310,6 @@ int main(int argc, char* argv[]) {
 	    if (hists_offsets.find(kv.first) != hists_offsets.end()) {
                 hists_offsets[kv.first]->Fill(panel_offset);
             }
-	    
-	    //double dt_adj = std::abs(dt + panel_offset);
-	    
-            double beta = distance / (c_mm_per_ns * dt);
-	    if (hists_beta.find(kv.first) != hists_beta.end()) {
-                hists_beta[kv.first]->Fill(beta);
-            }
         }
     }
 
@@ -333,62 +326,107 @@ int main(int argc, char* argv[]) {
               << mean_offset << std::endl;
     }
 
-    for (auto &kv : hists_beta) {
-        kv.second->Reset();
-    }
-
     // Re-run over events
-for (size_t i = 0; i < Instrument_Events->GetEntries(); i++) {
-    Instrument_Events->GetEntry(i);
+    for (uint i = 0; i < Instrument_Events->GetEntries(); i++) {
+        Instrument_Events->GetEntry(i);
 
-    std::map<std::string, HitInfo> hit_infos;
-    for (const auto &hit : Event->GetHitSeries()) {
-        int vol_id = hit.GetVolumeId();
-        if (!GGeometryObject::IsTofVolume(vol_id)) continue;
+        if(i%1000==0){
+        	progress.update();
+	    }
 
-        auto it = volid_lookup.find(vol_id);
-        if (it != volid_lookup.end()) {
-            const std::string &panel_name = it->second.panel;
-            size_t offset_index = it->second.index;
+        // single track requirement
+        if (Event->GetNTracks() != 1) continue;
+	
+        // requiring all TOF hits to be on the same track
+        vector<int> tof_track_indices = Event->GetHitTrackIndex();
+        bool skip_event = false;
+        int first_idx = -2;
+        for (size_t j = 0; j < tof_track_indices.size(); j++) {
+                int idx = tof_track_indices[j];
+                if (idx == -1) {
+                        skip_event = true;
+                    break;
+                }
+                if (j == 0) {
+                    first_idx = idx;
+                } else if (idx != first_idx) {
+                    skip_event = true;
+                        break;
+                    }
+	    }
+	    if (skip_event) continue;
 
-            double raw_time = hit.GetTime();
-            double offset   = panel_offsets[panel_name]->at(offset_index);
-            double adj_time = raw_time - offset;
+        // requiring at least one hit on outer tof and one hit on inner tof
+        std::map<std::string, HitInfo> hit_infos;
+        bool is_outer_tof = false;
+        bool is_inner_tof = false;
+        int n_relevant_hits = 0;
 
-            TVector3 pos = hit.GetPosition();
-            hit_infos[panel_name] = {adj_time, pos};
+        for (const auto &hit : Event->GetHitSeries()) {
+            int vol_id = hit.GetVolumeId();
+            if (!GGeometryObject::IsTofVolume(vol_id)) continue;
+		
+            if (GGeometryObject::IsUmbrellaVolume(vol_id)) is_outer_tof = true;
+                if (GGeometryObject::IsCubeVolume(vol_id)) is_inner_tof = true;
+            
+                auto it = volid_lookup.find(vol_id);
+                if (it != volid_lookup.end()) {
+                    const std::string &panel_name = it->second.panel;
+                    size_t offset_index = it->second.index;
+
+                    double raw_time = hit.GetTime();
+                    double offset = panel_offsets[panel_name]->at(offset_index);
+
+        std::map<std::string, HitInfo> hit_infos;
+        for (const auto &hit : Event->GetHitSeries()) {
+            int vol_id = hit.GetVolumeId();
+            if (!GGeometryObject::IsTofVolume(vol_id)) continue;
+
+            auto it = volid_lookup.find(vol_id);
+            if (it != volid_lookup.end()) {
+                const std::string &panel_name = it->second.panel;
+                size_t paddle_offset_index = it->second.index;
+
+                double raw_time = hit.GetTime();
+
+                // Look up the per-panel mean offset
+                auto p2p_it = mean_panel_offsets.find(panel_name);
+                double panel_offset = 0.0;
+                if (p2p_it != mean_panel_offsets.end()) {
+                    panel_offset = mean_it->second;
+                }
+
+                double paddle_offset   = panel_offsets[panel_name]->at(paddle_offset_index);
+                double adj_time = raw_time - paddle_offset + panel_offset;  
+
+                TVector3 pos = hit.GetPosition();
+                hit_infos[panel_name] = {adj_time, pos};
+            }
+        }
+
+        if (hit_infos.find("panel_1") == hit_infos.end()) continue;
+        double t_panel1   = hit_infos["panel_1"].adj_time;
+        TVector3 pos_panel1 = hit_infos["panel_1"].pos;
+
+        for (const auto &kv : hit_infos) {
+            if (kv.first == "panel_1") continue;
+
+            double t_other     = kv.second.adj_time;
+            TVector3 pos_other = kv.second.pos;
+
+            double dt = std::abs(t_other - t_panel1); // ns
+            if (dt == 0) continue;
+
+            TVector3 diff = pos_other - pos_panel1;
+            double distance = diff.Mag(); // mm
+
+            const double c_mm_per_ns = 299.792;
+
+            if (hists_beta.find(kv.first) != hists_beta.end()) {
+                hists_beta[kv.first]->Fill(beta);
+            }
         }
     }
-
-    if (hit_infos.find("panel_1") == hit_infos.end()) continue;
-    double t_panel1   = hit_infos["panel_1"].adj_time;
-    TVector3 pos_panel1 = hit_infos["panel_1"].pos;
-
-    for (const auto &kv : hit_infos) {
-        if (kv.first == "panel_1") continue;
-
-        double t_other     = kv.second.adj_time;
-        TVector3 pos_other = kv.second.pos;
-
-        double dt = std::abs(t_other - t_panel1); // ns
-        if (dt == 0) continue;
-
-        TVector3 diff = pos_other - pos_panel1;
-        double distance = diff.Mag(); // mm
-
-        const double c_mm_per_ns = 299.792;
-
-        // --- apply mean panel_offset correction ---
-        double corrected_dt = dt + mean_panel_offsets[kv.first];
-        if (corrected_dt <= 0) continue; // protect against bad correction
-
-        double beta = distance / (c_mm_per_ns * corrected_dt);
-
-        if (hists_beta.find(kv.first) != hists_beta.end()) {
-            hists_beta[kv.first]->Fill(beta);
-        }
-    }
-}
 
     for (const auto& kv : hists_beta) {
     std::cout << kv.first << " histogram entries: " << kv.second->GetEntries() << std::endl;
