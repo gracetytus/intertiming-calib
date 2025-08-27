@@ -379,7 +379,6 @@ int main(int argc, char* argv[]) {
                 double offset = panel_offsets[panel_name]->at(offset_index);
             }
         }
-        std::map<std::string, HitInfo> hit_infos;
         for (const auto &hit : Event->GetHitSeries()) {
             int vol_id = hit.GetVolumeId();
             if (!GGeometryObject::IsTofVolume(vol_id)) continue;
