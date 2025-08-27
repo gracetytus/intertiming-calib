@@ -211,7 +211,7 @@ int main(int argc, char* argv[]) {
                                         Form("Beta distribution for %s vs panel_1; #beta (v/c); Counts", panel_name.c_str()), 
                                         200, 0, 2);
 
-        hists_offset[panel_name] = new TH1D(Form("offset_%s", panel_name.c_str()), 
+        hists_offsets[panel_name] = new TH1D(Form("offset_%s", panel_name.c_str()), 
                                         Form("Panel offset for %s vs panel_1; Δs - Δt (mm/ns); Counts", panel_name.c_str()), 
                                         200, -500, 500);
     }
@@ -307,14 +307,14 @@ int main(int argc, char* argv[]) {
 	    double distance = diff.Mag();
 		
 	    double panel_offset = (distance/c_mm_per_ns) - dt;
-	    if (hists_offset.find(kv.first) != hists_offset.end()) {
-                hists_offset[kv.first]->Fill(panel_offset);
+	    if (hists_offsets.find(kv.first) != hists_offsets.end()) {
+                hists_offsets[kv.first]->Fill(panel_offset);
             }
 	    
 	    //double dt_adj = std::abs(dt + panel_offset);
 	    
             double beta = distance / (c_mm_per_ns * dt);
-	    if (hists_beta.find(kv.first) != hists.end()) {
+	    if (hists_beta.find(kv.first) != hists_beta.end()) {
                 hists_beta[kv.first]->Fill(beta);
             }
         }
@@ -322,7 +322,7 @@ int main(int argc, char* argv[]) {
 
     std::map<std::string, double> mean_panel_offsets;
 
-    for (auto &kv : hists_offset) {
+    for (auto &kv : hists_offsets) {
         const std::string &panel = kv.first;
         TH1D *hist = kv.second;
         double mean_offset = hist->GetMean();
