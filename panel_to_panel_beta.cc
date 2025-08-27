@@ -272,17 +272,17 @@ int main(int argc, char* argv[]) {
             auto it = volid_lookup.find(vol_id);
             if (it != volid_lookup.end()) {
                 const std::string &panel_name = it->second.panel;
-                size_t offset_index = it->second.index;
+                size_t paddle_offset_index = it->second.index;
 
                 double raw_time = hit.GetTime();
-                double offset = panel_offsets[panel_name]->at(offset_index);
-                double adj_time = raw_time - offset;
+                double paddle_offset = panel_offsets[panel_name]->at(paddle_offset_index);
+                double adj_time = raw_time - paddle_offset;
 		//hit_times[panel_name] = adj_time;
 		TVector3 pos = hit.GetPosition();
 		hit_infos[panel_name] = {adj_time, pos};
             	n_relevant_hits++;
 		
-	    }	    
+	        }	    
         }
 	
 	// requiring at least two relevant hits
@@ -293,22 +293,22 @@ int main(int argc, char* argv[]) {
 
         if (hit_infos.find("panel_1") == hit_infos.end()) continue;
         double t_panel1 = hit_infos["panel_1"].adj_time;
-	TVector3 pos_panel1 = hit_infos["panel_1"].pos;
+	    TVector3 pos_panel1 = hit_infos["panel_1"].pos;
         const double c_mm_per_ns = 299.792;	
         for (const auto &kv : hit_infos) {
             if (kv.first == "panel_1") continue;
             double t_other = kv.second.adj_time;
             TVector3 pos_other = kv.second.pos;
-            double dt = std::abs( t_other - t_panel1);
+            double dt = std::abs(t_other - t_panel1);
             if (dt == 0) continue;
             dt = std::abs(dt);	
 
             TVector3 diff = pos_other - pos_panel1;
             double distance = diff.Mag();
             
-            double panel_offset = (distance/c_mm_per_ns) - dt;
+            double inter_panel_offset = (distance/c_mm_per_ns) - dt;
             if (hists_offsets.find(kv.first) != hists_offsets.end()) {
-                    hists_offsets[kv.first]->Fill(panel_offset);
+                    hists_offsets[kv.first]->Fill(inter_panel_offset);
             }
         }
     }
@@ -373,22 +373,11 @@ int main(int argc, char* argv[]) {
             auto it = volid_lookup.find(vol_id);
             if (it != volid_lookup.end()) {
                 const std::string &panel_name = it->second.panel;
-                size_t offset_index = it->second.index;
-
-                double raw_time = hit.GetTime();
-                double offset = panel_offsets[panel_name]->at(offset_index);
-            }
-        }
-        for (const auto &hit : Event->GetHitSeries()) {
-            int vol_id = hit.GetVolumeId();
-            if (!GGeometryObject::IsTofVolume(vol_id)) continue;
-
-            auto it = volid_lookup.find(vol_id);
-            if (it != volid_lookup.end()) {
-                const std::string &panel_name = it->second.panel;
                 size_t paddle_offset_index = it->second.index;
 
                 double raw_time = hit.GetTime();
+                double paddle_offset = panel_offsets[panel_name]->at(paddle_offset_index);
+                
 
                 // Look up the per-panel mean offset
                 auto p2p_it = mean_panel_offsets.find(panel_name);
@@ -396,8 +385,7 @@ int main(int argc, char* argv[]) {
                 if (p2p_it != mean_panel_offsets.end()) {
                     panel_offset = p2p_it->second;
                 }
-
-                double paddle_offset   = panel_offsets[panel_name]->at(paddle_offset_index);
+                
                 double adj_time = raw_time - paddle_offset + panel_offset;  
 
                 TVector3 pos = hit.GetPosition();
