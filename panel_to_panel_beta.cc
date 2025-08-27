@@ -200,15 +200,20 @@ int main(int argc, char* argv[]) {
         {"panel_60", &panel_60_offsets}
     };
 
-    std::map<std::string, TH1D*> hists;
-    for (const auto &entry : panel_vids) {
-        std::string histName = "beta_panel1_vs_" + entry.first;
-        std::string histTitle = "Beta Distribution: Panel 1 vs " + entry.first;
+    std::map<std::string, TH1D*> hists_beta;
+    std::map<std::string, TH1D*> hists_offsets;
 
-        // Create histogram: 200 bins from -100 to 100 ns (example)
-        hists[entry.first] = new TH1D(histName.c_str(), histTitle.c_str(), 200, 0, 2);
-        hists[entry.first]->GetXaxis()->SetTitle("Beta");
-        hists[entry.first]->GetYaxis()->SetTitle("Counts");
+    for (auto &kv : volid_lookup) {
+        const std::string &panel_name = kv.second.panel;
+        if (panel_name == "panel_1") continue;
+
+        hists_beta[panel_name]   = new TH1D(Form("beta_%s", panel_name.c_str()), 
+                                        Form("Beta distribution for %s vs panel_1; #beta (v/c); Counts", panel_name.c_str()), 
+                                        200, 0, 2);
+
+        hists_offset[panel_name] = new TH1D(Form("offset_%s", panel_name.c_str()), 
+                                        Form("Panel offset for %s vs panel_1; Δs - Δt (mm/ns); Counts", panel_name.c_str()), 
+                                        200, -500, 500);
     }
 
     TChain* Instrument_Events = new TChain("TreeRec");
@@ -227,18 +232,43 @@ int main(int argc, char* argv[]) {
 	if(i%1000==0){
         	progress.update();
 	}
+	// single track requirement
         if (Event->GetNTracks() != 1) continue;
 	
-	//std::map<std::string, double> hit_times;
+	// requiring all TOF hits to be on the same track
+	vector<int> tof_track_indices = Event->GetHitTrackIndex();
+	bool skip_event = false;
+	int first_idx = -2;
+	for (size_t j = 0; j < tof_track_indices.size(); j++) {
+    		int idx = tof_track_indices[j];
+    		if (idx == -1) {
+                    skip_event = true;
+        	    break;
+    		}
+    		if (j == 0) {
+        	    first_idx = idx;
+    		} else if (idx != first_idx) {
+        	    skip_event = true;
+                    break;
+                }
+	}
+	if (skip_event) continue;
 	
+	// requiring at least one hit on outer tof and one hit on inner tof
 	std::map<std::string, HitInfo> hit_infos;
+	bool is_outer_tof = false;
+	bool is_inner_tof = false;
+	int n_relevant_hits = 0;
 
 	for (const auto &hit : Event->GetHitSeries()) {
             int vol_id = hit.GetVolumeId();
 	    //TVector3 hit_position = hit.GetPosition();
 	    //std::cout << hit_position << std::endl; 
             if (!GGeometryObject::IsTofVolume(vol_id)) continue;
-
+		
+ 	    if (GGeometryObject::IsUmbrellaVolume(vol_id)) is_outer_tof = true;
+    	    if (GGeometryObject::IsCubeVolume(vol_id)) is_inner_tof = true;
+	    
             auto it = volid_lookup.find(vol_id);
             if (it != volid_lookup.end()) {
                 const std::string &panel_name = it->second.panel;
@@ -250,9 +280,17 @@ int main(int argc, char* argv[]) {
 		//hit_times[panel_name] = adj_time;
 		TVector3 pos = hit.GetPosition();
 		hit_infos[panel_name] = {adj_time, pos};
-            }	    
+            	n_relevant_hits++;
+		
+	    }	    
         }
 	
+	// requiring at least two relevant hits
+	if (n_relevant_hits < 2) continue;
+
+	// checking requirement that there is at least one hit in outer tof and one hit in inner tof
+	if (!(is_outer_tof && is_inner_tof)) continue;
+
         if (hit_infos.find("panel_1") == hit_infos.end()) continue;
         double t_panel1 = hit_infos["panel_1"].adj_time;
 	TVector3 pos_panel1 = hit_infos["panel_1"].pos;
@@ -261,31 +299,108 @@ int main(int argc, char* argv[]) {
             if (kv.first == "panel_1") continue;
             double t_other = kv.second.adj_time;
 	    TVector3 pos_other = kv.second.pos;
-	    double dt = t_other - t_panel1;
+	    double dt = std::abs( t_other - t_panel1);
 	    if (dt == 0) continue;
 	    dt = std::abs(dt);	
 
 	    TVector3 diff = pos_other - pos_panel1;
 	    double distance = diff.Mag();
-	    double beta = distance / (c_mm_per_ns * dt);
-
-            if (hists.find(kv.first) != hists.end()) {
-                hists[kv.first]->Fill(beta);
+		
+	    double panel_offset = (distance/c_mm_per_ns) - dt;
+	    if (hists_offset.find(kv.first) != hists_offset.end()) {
+                hists_offset[kv.first]->Fill(panel_offset);
+            }
+	    
+	    //double dt_adj = std::abs(dt + panel_offset);
+	    
+            double beta = distance / (c_mm_per_ns * dt);
+	    if (hists_beta.find(kv.first) != hists.end()) {
+                hists_beta[kv.first]->Fill(beta);
             }
         }
     }
 
-    for (const auto& kv : hists) {
+    std::map<std::string, double> mean_panel_offsets;
+
+    for (auto &kv : hists_offset) {
+        const std::string &panel = kv.first;
+        TH1D *hist = kv.second;
+        double mean_offset = hist->GetMean();
+        mean_panel_offsets[panel] = mean_offset;
+
+        std::cout << "Panel offset for " << panel
+              << " relative to panel_1 = "
+              << mean_offset << std::endl;
+    }
+
+    for (auto &kv : hists_beta) {
+        kv.second->Reset();
+    }
+
+    // Re-run over events
+for (size_t i = 0; i < Instrument_Events->GetEntries(); i++) {
+    Instrument_Events->GetEntry(i);
+
+    std::map<std::string, HitInfo> hit_infos;
+    for (const auto &hit : Event->GetHitSeries()) {
+        int vol_id = hit.GetVolumeId();
+        if (!GGeometryObject::IsTofVolume(vol_id)) continue;
+
+        auto it = volid_lookup.find(vol_id);
+        if (it != volid_lookup.end()) {
+            const std::string &panel_name = it->second.panel;
+            size_t offset_index = it->second.index;
+
+            double raw_time = hit.GetTime();
+            double offset   = panel_offsets[panel_name]->at(offset_index);
+            double adj_time = raw_time - offset;
+
+            TVector3 pos = hit.GetPosition();
+            hit_infos[panel_name] = {adj_time, pos};
+        }
+    }
+
+    if (hit_infos.find("panel_1") == hit_infos.end()) continue;
+    double t_panel1   = hit_infos["panel_1"].adj_time;
+    TVector3 pos_panel1 = hit_infos["panel_1"].pos;
+
+    for (const auto &kv : hit_infos) {
+        if (kv.first == "panel_1") continue;
+
+        double t_other     = kv.second.adj_time;
+        TVector3 pos_other = kv.second.pos;
+
+        double dt = std::abs(t_other - t_panel1); // ns
+        if (dt == 0) continue;
+
+        TVector3 diff = pos_other - pos_panel1;
+        double distance = diff.Mag(); // mm
+
+        const double c_mm_per_ns = 299.792;
+
+        // --- apply mean panel_offset correction ---
+        double corrected_dt = dt + mean_panel_offsets[kv.first];
+        if (corrected_dt <= 0) continue; // protect against bad correction
+
+        double beta = distance / (c_mm_per_ns * corrected_dt);
+
+        if (hists_beta.find(kv.first) != hists_beta.end()) {
+            hists_beta[kv.first]->Fill(beta);
+        }
+    }
+}
+
+    for (const auto& kv : hists_beta) {
     std::cout << kv.first << " histogram entries: " << kv.second->GetEntries() << std::endl;
     }
 
-    for (const auto& kv : hists) {
+    for (const auto& kv : hists_beta) {
     const std::string& panel_name = kv.first;
     TH1D* hist = kv.second;
 
     TCanvas canvas(panel_name.c_str(), panel_name.c_str(), 800, 600);
     hist->Draw();
-    canvas.SaveAs((panel_name + ".pdf").c_str());    // save as PDF
-    canvas.SaveAs((panel_name + ".root").c_str());   // optionally save as ROOT file
+    canvas.SaveAs((out_path + panel_name + "_beta_dist.pdf").c_str());    // save as PDF
+    canvas.SaveAs((out_path + panel_name + "_beta_dist.root").c_str());   // optionally save as ROOT file
     }
 }    
