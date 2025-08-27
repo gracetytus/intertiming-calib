@@ -298,17 +298,17 @@ int main(int argc, char* argv[]) {
         for (const auto &kv : hit_infos) {
             if (kv.first == "panel_1") continue;
             double t_other = kv.second.adj_time;
-	    TVector3 pos_other = kv.second.pos;
-	    double dt = std::abs( t_other - t_panel1);
-	    if (dt == 0) continue;
-	    dt = std::abs(dt);	
+            TVector3 pos_other = kv.second.pos;
+            double dt = std::abs( t_other - t_panel1);
+            if (dt == 0) continue;
+            dt = std::abs(dt);	
 
-	    TVector3 diff = pos_other - pos_panel1;
-	    double distance = diff.Mag();
-		
-	    double panel_offset = (distance/c_mm_per_ns) - dt;
-	    if (hists_offsets.find(kv.first) != hists_offsets.end()) {
-                hists_offsets[kv.first]->Fill(panel_offset);
+            TVector3 diff = pos_other - pos_panel1;
+            double distance = diff.Mag();
+            
+            double panel_offset = (distance/c_mm_per_ns) - dt;
+            if (hists_offsets.find(kv.first) != hists_offsets.end()) {
+                    hists_offsets[kv.first]->Fill(panel_offset);
             }
         }
     }
@@ -354,7 +354,8 @@ int main(int argc, char* argv[]) {
                         break;
                     }
 	    }
-	    if (skip_event) continue;
+	    
+        if (skip_event) continue;
 
         // requiring at least one hit on outer tof and one hit on inner tof
         std::map<std::string, HitInfo> hit_infos;
@@ -367,16 +368,17 @@ int main(int argc, char* argv[]) {
             if (!GGeometryObject::IsTofVolume(vol_id)) continue;
 		
             if (GGeometryObject::IsUmbrellaVolume(vol_id)) is_outer_tof = true;
-                if (GGeometryObject::IsCubeVolume(vol_id)) is_inner_tof = true;
-            
-                auto it = volid_lookup.find(vol_id);
-                if (it != volid_lookup.end()) {
-                    const std::string &panel_name = it->second.panel;
-                    size_t offset_index = it->second.index;
+            if (GGeometryObject::IsCubeVolume(vol_id)) is_inner_tof = true;
+        
+            auto it = volid_lookup.find(vol_id);
+            if (it != volid_lookup.end()) {
+                const std::string &panel_name = it->second.panel;
+                size_t offset_index = it->second.index;
 
-                    double raw_time = hit.GetTime();
-                    double offset = panel_offsets[panel_name]->at(offset_index);
-
+                double raw_time = hit.GetTime();
+                double offset = panel_offsets[panel_name]->at(offset_index);
+            }
+        }
         std::map<std::string, HitInfo> hit_infos;
         for (const auto &hit : Event->GetHitSeries()) {
             int vol_id = hit.GetVolumeId();
@@ -393,7 +395,7 @@ int main(int argc, char* argv[]) {
                 auto p2p_it = mean_panel_offsets.find(panel_name);
                 double panel_offset = 0.0;
                 if (p2p_it != mean_panel_offsets.end()) {
-                    panel_offset = mean_it->second;
+                    panel_offset = p2p_it->second;
                 }
 
                 double paddle_offset   = panel_offsets[panel_name]->at(paddle_offset_index);
@@ -422,6 +424,7 @@ int main(int argc, char* argv[]) {
 
             const double c_mm_per_ns = 299.792;
 
+            double beta = distance / (c_mm_per_ns * dt);
             if (hists_beta.find(kv.first) != hists_beta.end()) {
                 hists_beta[kv.first]->Fill(beta);
             }
