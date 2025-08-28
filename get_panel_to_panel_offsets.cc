@@ -2,11 +2,6 @@
 #include <TTree.h>
 #include <TChain.h>
 #include <TH1D.h>
-#include <TCanvas.h>
-#include <TPaveText.h>
-#include <TText.h>
-#include <TF1.h>
-#include <TLine.h>
 #include <cmath>
 #include <numeric>
 #include <vector>
@@ -18,8 +13,6 @@
 #include "GRecoHit.hh"
 #include "GGeometryObject.hh"
 #include "progressbar.hpp"
-#include <TStyle.h>
-#include <TLegend.h>
 #include <fstream>
 
 using std::vector;
@@ -309,7 +302,7 @@ int main(int argc, char* argv[]) {
 
     std::map<std::string, double> mean_panel_offsets;
     std::ofstream outfile("panel_offsets.csv");
-    
+
     if (!outfile.is_open()) {
     std::cerr << "Error: could not open panel_offsets.csv for writing" << std::endl;
     } else {
