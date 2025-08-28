@@ -94,3 +94,15 @@ target_link_libraries(SingleLady ${LIB_DIRS})
 add_executable(AllPanelGlob panel_all_glob_plot.cc)
 target_include_directories(AllPanelGlob PRIVATE ${GAPS_INCLUDE_DIRS}/gaps)
 target_link_libraries(AllPanelGlob ${LIB_DIRS})
+
+add_executable(HVStackGlob horiz_vert_stacked_glob_hist.cc)
+target_include_directories(HVStackGlob PRIVATE ${GAPS_INCLUDE_DIRS}/gaps)
+target_link_libraries(HVStackGlob ${LIB_DIRS})
+
+add_executable(P2P panel_to_panel.cc)
+target_include_directories(P2P PRIVATE ${GAPS_INCLUDE_DIRS}/gaps)
+target_link_libraries(P2P ${LIB_DIRS})
+
+add_executable(P2PB panel_to_panel_beta.cc)
+target_include_directories(P2PB PRIVATE ${GAPS_INCLUDE_DIRS}/gaps)
+target_link_libraries(P2PB ${LIB_DIRS})

@@ -28,12 +28,12 @@ using std::endl;
 using boost::format;
 
 //volume ids by paddle
-std::vector<int> panel_1_vids  = {110000000, 110000100, 110000200, 110000300, 110000400, 110000500, 110000600, 110000700, 110000700, 110000800, 110000900, 110001000, 110001100};
-std::vector<int> panel_2a_vids = {111001100, 111001000, 111000900, 111000800, 111000700, 110000600};
+std::vector<int> panel_1_vids  = {110000000, 110000100, 110000200, 110000300, 110000400, 110000500, 110000600, 110000700, 110000800, 110000900, 110001000, 110001100};
+std::vector<int> panel_2a_vids = {111001000, 111000900, 111000800, 111000700};
 std::vector<int> panel_2b_vids = {110000500, 110000400, 110000300, 110000200, 110000100, 110000000};
 std::vector<int> panel_3_vids  = {112000700, 112000600, 112000500, 112000400, 112000300, 112000200, 112000100, 112000000};
 std::vector<int> panel_4_vids  = {114000700, 114000600, 114000500, 114000400, 114000300, 114000200, 114000100, 114000000};
-std::vector<int> panel_5a_vids = {113000700, 113000600, 110000500, 113000400, 113000300};
+std::vector<int> panel_5a_vids = {113000700, 113000600, 110000500};
 std::vector<int> panel_5b_vids = {113000200, 113000100, 113000000};
 std::vector<int> panel_6_vids  = {11500000, 115000100, 115000200, 115000300, 115000400, 115000500, 115000600, 115000700};
 std::vector<int> panel_57_vids = {116000000};
@@ -45,7 +45,7 @@ std::vector<int> panel_8_vids  = {100300500, 100300400, 100300300, 100300200, 10
 std::vector<int> panel_9_vids  = {100200500, 100200400, 100200300, 100200200, 100200100, 100200000};
 std::vector<int> panel_10_vids = {100400000, 100400100, 100400200, 100400300, 100400400, 100400500};
 std::vector<int> panel_11_vids = {100600500, 100600400, 100600300, 100600200, 100600100, 100600000};
-std::vector<int> panel_12_vids = {100100500, 100100400, 100100300, 100100200, 100100100, 100100000};
+std::vector<int> panel_12_vids = {100100400, 100100300, 100100200, 100100100, 100100000};
 std::vector<int> panel_13_vids = {100500500, 100500400, 100500300, 100500200, 100500100, 100500000};
 std::vector<int> panel_14_vids = {102000900, 102000800, 102000700, 102000600, 102000500, 102000400, 102000300, 102000200, 102000100, 102000000};
 std::vector<int> panel_15_vids = {104000000, 104000100, 104000200, 104000300, 104000400, 104000500, 104000600, 104000700, 104000800, 104000900};
@@ -192,7 +192,7 @@ int main(int argc, char* argv[]) {
         {"panel_57", &panel_57_offsets},
         {"panel_58", &panel_58_offsets},
         {"panel_59", &panel_59_offsets},
-        {"panel_60", &panel_6_offsets}
+        {"panel_60", &panel_60_offsets}
     };
 
     std::map<std::string, TH1D*> hists;
@@ -201,7 +201,7 @@ int main(int argc, char* argv[]) {
         std::string histTitle = "Time difference: Panel 1 vs " + entry.first;
 
         // Create histogram: 200 bins from -100 to 100 ns (example)
-        hists[entry.first] = new TH1D(histName.c_str(), histTitle.c_str(), 200, -100, 100);
+        hists[entry.first] = new TH1D(histName.c_str(), histTitle.c_str(), 200, -20, 20);
         hists[entry.first]->GetXaxis()->SetTitle("Time difference [ns]");
         hists[entry.first]->GetYaxis()->SetTitle("Counts");
     }
@@ -225,9 +225,11 @@ int main(int argc, char* argv[]) {
         if (Event->GetNTracks() != 1) continue;
 	
 	std::map<std::string, double> hit_times;
-
+	
 	for (const auto &hit : Event->GetHitSeries()) {
             int vol_id = hit.GetVolumeId();
+	    //TVector3 hit_position = hit.GetPosition();
+	    //std::cout << hit_position << std::endl; 
             if (!GGeometryObject::IsTofVolume(vol_id)) continue;
 
             auto it = volid_lookup.find(vol_id);
@@ -238,13 +240,15 @@ int main(int argc, char* argv[]) {
                 double raw_time = hit.GetTime();
                 double offset = panel_offsets[panel_name]->at(offset_index);
                 double adj_time = raw_time - offset;
+		hit_times[panel_name] = adj_time;
+
 
             }	    
         }
 
         if (hit_times.find("panel_1") == hit_times.end()) continue;
         double t_panel1 = hit_times["panel_1"];
-
+	
         for (const auto &kv : hit_times) {
             if (kv.first == "panel_1") continue;
             double dt = kv.second - t_panel1;
@@ -252,5 +256,19 @@ int main(int argc, char* argv[]) {
                 hists[kv.first]->Fill(dt);
             }
         }
+    }
+
+    for (const auto& kv : hists) {
+    std::cout << kv.first << " histogram entries: " << kv.second->GetEntries() << std::endl;
+    }
+
+    for (const auto& kv : hists) {
+    const std::string& panel_name = kv.first;
+    TH1D* hist = kv.second;
+
+    TCanvas canvas(panel_name.c_str(), panel_name.c_str(), 800, 600);
+    hist->Draw();
+    canvas.SaveAs((panel_name + ".pdf").c_str());    // save as PDF
+    canvas.SaveAs((panel_name + ".root").c_str());   // optionally save as ROOT file
     }
 }    
