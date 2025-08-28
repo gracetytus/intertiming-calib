@@ -198,11 +198,16 @@ int main(int argc, char* argv[]) {
     for (auto &kv : volid_lookup) {
         const std::string &panel_name = kv.second.panel;
         if (panel_name == "panel_1") continue;
-        hists_offsets[panel_name] = new TH1D(Form("offset_%s", panel_name.c_str()), 
-                                        Form("Panel offset for %s vs panel_1; Δs - Δt (mm/ns); Counts", panel_name.c_str()), 
-                                        200, -500, 500);
-    }
 
+        // Only create the histogram if it doesn't already exist
+        if (hists_offsets.find(panel_name) == hists_offsets.end()) {
+            hists_offsets[panel_name] = new TH1D(
+                Form("offset_%s", panel_name.c_str()), 
+                Form("Panel offset for %s vs panel_1; Δs - Δt (mm/ns); Counts", panel_name.c_str()), 
+                200, -500, 500
+        );
+    }
+}
     TChain* Instrument_Events = new TChain("TreeRec");
     Instrument_Events->SetAutoDelete(true);
     CEventRec* Event = new CEventRec;
@@ -299,21 +304,20 @@ int main(int argc, char* argv[]) {
 
             double inter_panel_offset = (distance/c_mm_per_ns) - delta_t;
 
-            if (hists_offsets.find(kv.first) != hists_offsets.end()) {
-                    hists_offsets[kv.first]->Fill(inter_panel_offset);
+            auto it = hists_offsets.find(kv.first);
+            if (it != hists_offsets.end()) {
+                it->second->Fill(inter_panel_offset);
             }
         }
     }
 
     std::map<std::string, double> mean_panel_offsets;
+
     std::ofstream outfile("panel_offsets.csv");
-
     if (!outfile.is_open()) {
-    std::cerr << "Error: could not open panel_offsets.csv for writing" << std::endl;
+        std::cerr << "Error: could not open panel_offsets.csv for writing" << std::endl;
     } else {
-
-        // write a header for clarity
-        outfile << "Panel,Offset\n";
+        outfile << "Panel,Offset\n"; // CSV header
 
         for (auto &kv : hists_offsets) {
             const std::string &panel = kv.first;
@@ -326,10 +330,11 @@ int main(int argc, char* argv[]) {
                     << " relative to panel_1 = "
                     << mean_offset << std::endl;
 
-            // write to file
+            // write to CSV
             outfile << panel << "," << mean_offset << "\n";
         }
-    outfile.close();
+
+        outfile.close();
     }
 }
         
