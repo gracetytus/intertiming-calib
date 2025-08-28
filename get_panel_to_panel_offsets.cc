@@ -79,6 +79,11 @@ std::vector<double> panel_58_offsets = {0.000};
 std::vector<double> panel_59_offsets = {0.000};
 std::vector<double> panel_60_offsets = {0.000};
 
+struct HitInfo {
+    double adj_time;
+    TVector3 pos;
+};
+
 int main(int argc, char* argv[]) {
     GOptionParser* parser = GOptionParser::GetInstance();
     parser->AddProgramDescription("Computes the panel to panel timing offsets for TOF panels");
@@ -92,7 +97,7 @@ int main(int argc, char* argv[]) {
 
     struct PanelInfo {
         std::string panel;
-        uint index; // index within that panel's offsets vector
+        size_t index; // index within that panel's offsets vector
     };
 
     std::map<int, PanelInfo> volid_lookup;
@@ -211,7 +216,7 @@ int main(int argc, char* argv[]) {
     Instrument_Events->SetBranchAddress("Rec", &Event);
 
     //begin loop
-    for (uint i = 0; i < Instrument_Events->GetEntries(); i++) {
+    for (size_t i = 0; i < Instrument_Events->GetEntries(); i++) {
         Instrument_Events->GetEntry(i);
         if(i%1000==0){
                 progress.update();
