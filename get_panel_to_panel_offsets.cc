@@ -14,12 +14,15 @@
 #include "GGeometryObject.hh"
 #include "progressbar.hpp"
 #include <fstream>
+#include <TFile.h>
+#include <TCanvas.h>
 
 using std::vector;
 using std::string;
 using std::cout;
 using std::endl;
 using boost::format;
+
 
 //volume ids by paddle
 std::vector<int> panel_1_vids  = {110000000, 110000100, 110000200, 110000300, 110000400, 110000500, 110000600, 110000700, 110000800, 110000900, 110001000, 110001100};
@@ -313,28 +316,48 @@ int main(int argc, char* argv[]) {
 
     std::map<std::string, double> mean_panel_offsets;
 
-    std::ofstream outfile("panel_offsets.csv");
-    if (!outfile.is_open()) {
-        std::cerr << "Error: could not open panel_offsets.csv for writing" << std::endl;
-    } else {
-        outfile << "Panel,Offset\n"; // CSV header
+    namespace fs = std::filesystem;
 
-        for (auto &kv : hists_offsets) {
-            const std::string &panel = kv.first;
-            TH1D *hist = kv.second;
-            double mean_offset = hist->GetMean();
-            mean_panel_offsets[panel] = mean_offset;
+    // Make sure the output directory exists
+    if (!fs::exists(out_path)) {
+        fs::create_directories(out_path);
+    }
 
-            // print to terminal
-            std::cout << "Panel offset for " << panel
-                    << " relative to panel_1 = "
-                    << mean_offset << std::endl;
+    // Loop over histograms after the event loop
+    for (auto &kv : hists_offsets) {
+        const std::string &panel = kv.first;
+        TH1D *hist = kv.second;
 
-            // write to CSV
-            outfile << panel << "," << mean_offset << "\n";
+        // Print mean offset
+        double mean_offset = hist->GetMean();
+        std::cout << "Panel offset for " << panel
+                << " relative to panel_1 = "
+                << mean_offset << std::endl;
+        mean_panel_offsets[panel] = mean_offset;
+
+        // Draw histogram and save as PDF
+        TCanvas canvas("canvas", "Histogram", 800, 600);
+        hist->Draw();
+
+        // Construct output filename
+        std::string pdf_filename = fs::path(out_path) / (panel + ".pdf");
+        canvas.Print(pdf_filename.c_str());
+
+        // Optionally, also save ROOT file per histogram
+        std::string root_filename = fs::path(out_path) / (panel + ".root");
+        TFile rootfile(root_filename.c_str(), "RECREATE");
+        hist->Write();
+        rootfile.Close();
+    }
+
+    // Save CSV of mean offsets
+    std::ofstream csvfile(fs::path(out_path) / "panel_offsets.csv");
+    if (csvfile.is_open()) {
+        csvfile << "Panel,Offset\n";
+        for (const auto &kv : mean_panel_offsets) {
+            csvfile << kv.first << "," << kv.second << "\n";
         }
-
-        outfile.close();
+        csvfile.close();
     }
 }
         
