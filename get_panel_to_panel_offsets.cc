@@ -16,6 +16,8 @@
 #include <fstream>
 #include <TFile.h>
 #include <TCanvas.h>
+#include <filesystem>
+#include <map>
 
 using std::vector;
 using std::string;
@@ -207,10 +209,10 @@ int main(int argc, char* argv[]) {
             hists_offsets[panel_name] = new TH1D(
                 Form("offset_%s", panel_name.c_str()), 
                 Form("Panel offset for %s vs panel_1; Δs - Δt (mm/ns); Counts", panel_name.c_str()), 
-                200, -500, 500
-        );
+                200, -5, 5
+            );
+        }
     }
-}
     TChain* Instrument_Events = new TChain("TreeRec");
     Instrument_Events->SetAutoDelete(true);
     CEventRec* Event = new CEventRec;
@@ -340,11 +342,11 @@ int main(int argc, char* argv[]) {
         hist->Draw();
 
         // Construct output filename
-        std::string pdf_filename = fs::path(out_path) / (panel + ".pdf");
+        std::string pdf_filename = fs::path(out_path) / (panel + "_offsets.pdf");
         canvas.Print(pdf_filename.c_str());
 
         // Optionally, also save ROOT file per histogram
-        std::string root_filename = fs::path(out_path) / (panel + ".root");
+        std::string root_filename = fs::path(out_path) / (panel + "_offsets.root");
         TFile rootfile(root_filename.c_str(), "RECREATE");
         hist->Write();
         rootfile.Close();

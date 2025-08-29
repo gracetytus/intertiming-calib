@@ -106,3 +106,7 @@ target_link_libraries(P2P ${LIB_DIRS})
 add_executable(P2PB panel_to_panel_beta.cc)
 target_include_directories(P2PB PRIVATE ${GAPS_INCLUDE_DIRS}/gaps)
 target_link_libraries(P2PB ${LIB_DIRS})
+
+add_executable(P2P_offsets get_panel_to_panel_offsets.cc)
+target_include_directories(P2P_offsets PRIVATE ${GAPS_INCLUDE_DIRS}/gaps)
+target_link_libraries(P2P_offsets ${LIB_DIRS})
