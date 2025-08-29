@@ -307,7 +307,9 @@ int main(int argc, char* argv[]) {
             TVector3 diff = pos_other - pos_panel1;
             double distance = diff.Mag();
 
-            double inter_panel_offset = (distance/c_mm_per_ns) - delta_t;
+            double beta = (distance/c_mm_per_ns) - delta_t;
+
+            double inter_panel_offset = (distance/(beta*c_mm_per_ns)) - delta_t;
 
             auto it = hists_offsets.find(kv.first);
             if (it != hists_offsets.end()) {
