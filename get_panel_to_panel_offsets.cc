@@ -18,7 +18,7 @@
 #include <TCanvas.h>
 #include <filesystem>
 #include <map>
-
+#include <TLatex.h>
 using std::vector;
 using std::string;
 using std::cout;
@@ -208,7 +208,7 @@ int main(int argc, char* argv[]) {
         if (hists_offsets.find(panel_name) == hists_offsets.end()) {
             hists_offsets[panel_name] = new TH1D(
                 Form("offset_%s", panel_name.c_str()), 
-                Form("Panel offset for %s vs panel_1; Δs - Δt (mm/ns); Counts", panel_name.c_str()), 
+                Form("Panel offset for %s vs panel_1; (#DeltaS/#betac) - #Deltat [nsec]; Counts", panel_name.c_str()), 
                 200, -5, 5
             );
         }
@@ -307,9 +307,9 @@ int main(int argc, char* argv[]) {
             TVector3 diff = pos_other - pos_panel1;
             double distance = diff.Mag();
 
-            double beta = (distance/c_mm_per_ns) - delta_t;
+            double beta = (distance/(c_mm_per_ns*delta_t));
 
-            double inter_panel_offset = (distance/(beta*c_mm_per_ns)) - delta_t;
+            double inter_panel_offset = (distance/c_mm_per_ns) - delta_t;
 
             auto it = hists_offsets.find(kv.first);
             if (it != hists_offsets.end()) {

@@ -84,6 +84,7 @@ std::vector<double> panel_57_offsets = {0.000};
 std::vector<double> panel_58_offsets = {0.000};
 std::vector<double> panel_59_offsets = {0.000};
 std::vector<double> panel_60_offsets = {0.000};
+std::vecotr<double> panel_to_panel_dt = {0.000, -0.978114, 0.000, -0.307278, 0.0140806, 0.195537, -0.298701, -0.216451, -0.966745, -0.19472, 0.454123, 0.356322, -0.8334457, -1.75968, -1.60851, 0.419803, 0.389443, 0.400362, 0.650278, -0.196017, -0.465978, 0.40507, -0.284614, -0.320594, -0.507714, 0.296483, -0.468475};
 
 struct HitInfo {
     double adj_time;
@@ -200,8 +201,37 @@ int main(int argc, char* argv[]) {
         {"panel_60", &panel_60_offsets}
     };
 
+    std::unordered_map<std::string, double> panel_to_panel_offsets = {
+        {"panel_1",  panel_to_panel_dt[0]},
+        {"panel_2a",  panel_to_panel_dt[1]},
+        {"panel_2b",  panel_to_panel_dt[2]},
+        {"panel_3",  panel_to_panel_dt[3]},
+        {"panel_4", panel_to_panel_dt[4]},
+        {"panel_5a", panel_to_panel_dt[5]},
+        {"panel_5b", panel_to_panel_dt[6]},
+        {"panel_6", panel_to_panel_dt[7]},
+	{"panel_7", panel_to_panel_dt[8]}, 
+	{"panel_8", panel_to_panel_dt[9]},
+	{"panel_9", panel_to_panel_dt[10]}, 
+	{"panel_10", panel_to_panel_dt[11]},
+	{"panel_11", panel_to_panel_dt[12]}, 
+	{"panel_12", panel_to_panel_dt[13]}, 
+	{"panel_13", panel_to_panel_dt[14]}, 
+	{"panel_14", panel_to_panel_dt[25]}, 
+	{"panel_15", panel_to_panel_dt[16]}, 
+	{"panel_16", panel_to_panel_dt[17]}, 
+	{"panel_17", panel_to_panel_dt[18]}, 
+	{"panel_18", panel_to_panel_dt[19]},
+	{"panel_19", panel_to_panel_dt[20]}, 
+	{"panel_20", panel_to_panel_dt[21]}, 
+	{"panel_21", panel_to_panel_dt[22]}, 
+	{"panel_57", panel_to_panel_dt[23]}, 
+	{"panel_58", panel_to_panel_dt[24]}, 
+	{"panel_59", panel_to_panel_dt[25]}, 
+	{"panel_60", panel_to_panel_dt[26]}
+    };
+
     std::map<std::string, TH1D*> hists_beta;
-    std::map<std::string, TH1D*> hists_offsets;
 
     for (auto &kv : volid_lookup) {
         const std::string &panel_name = kv.second.panel;
