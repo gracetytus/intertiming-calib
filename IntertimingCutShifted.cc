@@ -187,6 +187,7 @@ int main(int argc, char* argv[]) {
 cout << endl;   
 
     // === Output histograms ===
+    //std::string root_filename = out_path + ".root";
     TFile out_file(out_path.c_str(), "recreate");
     out_file.cd();
 
@@ -241,9 +242,9 @@ cout << endl;
         }
        
         canvas->SaveAs(pdf_name.c_str());
-        canvas->Write(canvas_name.c_str());
-        time_diffs[i]->Write(time_diffs[i]->GetName());
+        canvas->Write();
+        time_diffs[i]->Write();
     }
-
+    out_file.Write();
     out_file.Close();
 }
