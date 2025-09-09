@@ -5,9 +5,6 @@ project(intertiming_calib)
 
 #----------------------------------------------------------------------------
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 find_package(ROOT REQUIRED)
 find_package(GAPS REQUIRED)
 find_package(Boost 1.74 REQUIRED program_options timer log log_setup)
