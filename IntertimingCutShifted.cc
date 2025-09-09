@@ -85,8 +85,8 @@ int main(int argc, char* argv[]) {
     vector<TH1D*> time_diffs;
     string hist_name, hist_title;
     for (uint i = 0; i < paddle_ids.size() - 1; i++) {
-        hist_name = "tdiff_" + paddle_nums[i] + "_" + paddle_nums[i + 1];
-        hist_title = "T_{" + paddle_nums[i] + "}" + " - " + "T_{" + paddle_nums[i + 1] + "}";
+        hist_name = format("tdiff_{}_{}", paddle_nums[i],paddle_nums[i + 1]);
+        hist_title = format("T_{{}} - T_{{}}", paddle_nums[i], paddle_nums[i + 1]);
         time_diffs.push_back(new TH1D(hist_name.c_str(), hist_title.c_str(), 150, -5, 5));
     }
     // initialize vectors that hold space for each paddle time and raw time based on the length of the paddle_nums vector
@@ -194,7 +194,7 @@ cout << endl;
     TCanvas* canvas;
 
     for (uint i = 0; i < time_diffs.size(); i++) {
-        string canvas_name = "p" + paddle_nums[i] + "" + paddle_nums[i+1];
+        string canvas_name = format("p{}{}", paddle_nums[i], paddle_nums[i+1]);
         canvas = new TCanvas(canvas_name.c_str(), canvas_name.c_str(), 200, 10, 900, 900);
         canvas->SetLeftMargin(0.11);
         canvas->SetTopMargin(0.08);
@@ -225,7 +225,7 @@ cout << endl;
             legend->SetTextFont(42);
             legend->SetTextSize(0.02);
             
-            string evt_entry = "Events = " + n_entries;
+            string evt_entry = format("Events = {}", n_entries);
             string mean_entry = format("#mu = {:.3f} ns", par1);
             string stdv_entry = format("#sigma = {:.3f} ns", par2);
 
