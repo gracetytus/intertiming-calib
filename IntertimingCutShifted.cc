@@ -229,11 +229,11 @@ cout << endl;
             string mean_entry = format("#mu = {:.3f} ns", par1);
             string stdv_entry = format("#sigma = {:.3f} ns", par2);
 
-	        legend->AddEntry(nullptr, evt_entry.c_str(), "");
+	        legend->AddEntry("", evt_entry.c_str(), "");
             legend->AddEntry(time_diffs[i], "Data", "l");
             legend->AddEntry(fitted_func, "Gaussian Fit", "l");
-            legend->AddEntry(nullptr, mean_entry.c_str(), "");
-            legend->AddEntry(nullptr, stdv_entry.c_str(), "");
+            legend->AddEntry("", mean_entry.c_str(), "");
+            legend->AddEntry("", stdv_entry.c_str(), "");
             legend->Draw("SAME");
         }
 
