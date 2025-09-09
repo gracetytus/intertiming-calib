@@ -12,7 +12,6 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include <boost/format.hpp>
 #include "GOptionParser.hh"
 #include "CEventRec.hh"
 #include "GRecoHit.hh"
@@ -21,11 +20,13 @@
 #include <TStyle.h>
 #include <TLegend.h>
 
+#include <format>
+
 using std::vector;
 using std::string;
+using std::format;
 using std::cout;
 using std::endl;
-using boost::format;
 
 vector<int> parseCommaSeparatedInts(const string& input) {
     vector<int> result;
@@ -82,12 +83,11 @@ int main(int argc, char* argv[]) {
     //create time_diff vector
     //handle histogram naming based on paddle numbers, and placement on canvas
     vector<TH1D*> time_diffs;
-    format hist_name_fmt = format("tdiff_%1%_%2%");
-    format hist_title_fmt = format("T_{%1%} - T_{%2%}");
+    string hist_name, hist_title;
     for (uint i = 0; i < paddle_ids.size() - 1; i++) {
-        hist_name_fmt % paddle_nums[i] % paddle_nums[i + 1];
-        hist_title_fmt % paddle_nums[i] % paddle_nums[i + 1];
-        time_diffs.push_back(new TH1D(hist_name_fmt.str().c_str(), hist_title_fmt.str().c_str(), 150, -5, 5));
+        hist_name = "tdiff_" + paddle_nums[i] + "_" + paddle_nums[i + 1];
+        hist_title = "T_{" + paddle_nums[i] + "}" + " - " + "T_{" + paddle_nums[i + 1] + "}";
+        time_diffs.push_back(new TH1D(hist_name.c_str(), hist_title.c_str(), 150, -5, 5));
     }
     // initialize vectors that hold space for each paddle time and raw time based on the length of the paddle_nums vector
     vector<double> paddle_times(paddle_nums.size());
@@ -194,16 +194,13 @@ cout << endl;
     TCanvas* canvas;
 
     for (uint i = 0; i < time_diffs.size(); i++) {
-	std::string canvas_name =(boost::format("p%1%%2%canvas") % paddle_nums[i] % paddle_nums[i+1]).str();
-	std::string pdf_name = (boost::format("paddle_%1%_%2%_tdiff_cut.pdf") % paddle_nums[i] % paddle_nums[i+1]).str();
-	
+        string canvas_name = "p" + paddle_nums[i] + "" + paddle_nums[i+1];
         canvas = new TCanvas(canvas_name.c_str(), canvas_name.c_str(), 200, 10, 900, 900);
         canvas->SetLeftMargin(0.11);
         canvas->SetTopMargin(0.08);
         canvas->SetRightMargin(0.04);
         //canvas->SetLogy();
 
-        
         time_diffs[i]->Fit("gaus", "Q");
         TF1* fitted_func = time_diffs[i]->TH1::GetFunction("gaus");
 
@@ -213,7 +210,7 @@ cout << endl;
 
             double par1 = fitted_func->GetParameter(1);
             double par2 = fitted_func->GetParameter(2);
-	    int n_entries = time_diffs[i]->GetEntries();
+	        int n_entries = time_diffs[i]->GetEntries();
 
             time_diffs[i]->SetTitle("");
             time_diffs[i]->SetXTitle("Time Difference [ns]");
@@ -222,17 +219,21 @@ cout << endl;
             time_diffs[i]->Draw("HIST");
             fitted_func->Draw("SAME");
 
-	    TLegend* legend = new TLegend(0.72, 0.78, 0.9, 0.9);
+	        TLegend* legend = new TLegend(0.72, 0.78, 0.9, 0.9);
             legend->SetBorderSize(0);
             legend->SetFillStyle(0);
             legend->SetTextFont(42);
             legend->SetTextSize(0.02);
-		
-	    legend->AddEntry((TObject*)0, (boost::format("Events = %d") % n_entries).str().c_str(), "");
+            
+            string evt_entry = "Events = " + n_entries;
+            string mean_entry = format("#mu = {:.3f} ns", par1);
+            string stdv_entry = format("#sigma = {:.3f} ns", par2);
+
+	        legend->AddEntry(nullptr, evt_entry.c_str(), "");
             legend->AddEntry(time_diffs[i], "Data", "l");
             legend->AddEntry(fitted_func, "Gaussian Fit", "l");
-            legend->AddEntry((TObject*)0, (boost::format("#mu = %.3f ns") % par1).str().c_str(), "");
-            legend->AddEntry((TObject*)0, (boost::format("#sigma = %.3f ns") % par2).str().c_str(), "");
+            legend->AddEntry(nullptr, mean_entry.c_str(), "");
+            legend->AddEntry(nullptr, stdv_entry.c_str(), "");
             legend->Draw("SAME");
         }
 
@@ -241,7 +242,7 @@ cout << endl;
             std::cerr <<"Warning: Fit failed for histogram " << time_diffs[i]->GetName() << std::endl;
         }
        
-        canvas->SaveAs(pdf_name.c_str());
+        //canvas->SaveAs(pdf_name.c_str());
         canvas->Write();
         time_diffs[i]->Write();
     }
