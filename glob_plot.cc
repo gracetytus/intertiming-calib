@@ -94,7 +94,8 @@ int main(int argc, char* argv[]) {
     canvas->SetRightMargin(0.04);
 
     combined_hist->Fit("gaus", "Q");
-    TF1* fit_func = combined_hist->GetFunction("gaus");
+   
+    //TF1* f = combined_hist->GetFunction("gaus");
     
 
     combined_hist->SetLineColor(kBlack);
@@ -103,17 +104,21 @@ int main(int argc, char* argv[]) {
     combined_hist->GetYaxis()->SetTitle("Number of Events");
     combined_hist->Draw("HIST");
     
+
+
     double fit_range_min = -5.0;
     double fit_range_max = 5.0;
     double hist_mean = combined_hist->GetMean();
     double hist_sigma = combined_hist->GetRMS();
     double hist_peak = combined_hist->GetBinContent(combined_hist->GetMaximumBin());
 
-    double par[6] = {hist_peak, hist_mean, hist_sigma, 0.01*hist_peak, hist_mean, 2*hist_sigma};
-
-    TF1* f = new TF1("f", "gaus(0)+gaus(3)", fit_range_min, fit_range_max);
+    double par[3] = {hist_peak, hist_mean, hist_sigma};
+    TF1* f = new TF1("f", "gaus", fit_range_min, fit_range_max);
     f->SetParameters(par);
-    combined_hist->Fit(f, "RQ"); // final fit (quiet)
+    combined_hist->Fit(f, "RQ");
+    //TF1* f = new TF1("f", "gaus(0)+gaus(3)", fit_range_min, fit_range_max);
+    //f->SetParameters(par);
+    //combined_hist->Fit(f, "RQ"); // final fit (quiet)
 
     f->SetLineColor(kRed);
     f->SetLineWidth(2);
@@ -125,9 +130,9 @@ int main(int argc, char* argv[]) {
     double sigma1 = f->GetParameter(2);
     double area1 = amp1 * sigma1 * std::sqrt(2 * PI);
 
-    double amp2 = f->GetParameter(3);
-    double sigma2 = f->GetParameter(5);
-    double area2 = amp2 * sigma2 * std::sqrt(2 * PI);
+    //double amp2 = f->GetParameter(3);
+    //double sigma2 = f->GetParameter(5);
+    //double area2 = amp2 * sigma2 * std::sqrt(2 * PI);
 
     TLegend* legend = new TLegend(0.62, 0.64, 0.9, 0.9);
     legend->SetBorderSize(0);
@@ -137,17 +142,17 @@ int main(int argc, char* argv[]) {
 
     legend->AddEntry((TObject*)0, (boost::format("Events = %d") % n_entries).str().c_str(), "");
     legend->AddEntry(combined_hist, "Combined Data", "l");
-    legend->AddEntry(fit_func, "Gaussian Fit", "l");
-    legend->AddEntry((TObject*)0, (boost::format("#mu_{1} = %.3f ns") % f->GetParameter(1)).str().c_str(), "");
-    legend->AddEntry((TObject*)0, (boost::format("#sigma_{1} = %.3f ns") % f->GetParameter(2)).str().c_str(), "");
-    legend->AddEntry((TObject*)0, (boost::format("#mu_{2} = %.3f ns") % f->GetParameter(4)).str().c_str(), "");
-    legend->AddEntry((TObject*)0, (boost::format("#sigma_{2} = %.3f ns") % f->GetParameter(5)).str().c_str(), "");
-    legend->AddEntry((TObject*)0, (boost::format("Area_{1} = %.0f") % area1).str().c_str(), "");
-    legend->AddEntry((TObject*)0, (boost::format("Area_{2} = %.0f") % area2).str().c_str(), "");
+    legend->AddEntry(f, "Gaussian Fit", "l");
+    legend->AddEntry((TObject*)0, (boost::format("#mu = %.3f ns") % f->GetParameter(1)).str().c_str(), "");
+    legend->AddEntry((TObject*)0, (boost::format("#sigma = %.3f ns") % f->GetParameter(2)).str().c_str(), "");
+    //legend->AddEntry((TObject*)0, (boost::format("#mu_{2} = %.3f ns") % f->GetParameter(4)).str().c_str(), "");
+    //legend->AddEntry((TObject*)0, (boost::format("#sigma_{2} = %.3f ns") % f->GetParameter(5)).str().c_str(), "");
+    //legend->AddEntry((TObject*)0, (boost::format("Area_{1} = %.0f") % area1).str().c_str(), "");
+    //legend->AddEntry((TObject*)0, (boost::format("Area_{2} = %.0f") % area2).str().c_str(), "");
     
     legend->Draw("SAME");
 
-    TFile* out_file = new TFile("combined_tdiff_double_gauss.root", "RECREATE");
+    TFile* out_file = new TFile("combined_tdiff_single_gauss.root", "RECREATE");
     out_file->cd();
     canvas->Write("combined_canvas");
     combined_hist->Write("combined_hist");
