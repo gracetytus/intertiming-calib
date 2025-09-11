@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
     GOptionParser* parser = GOptionParser::GetInstance();
     parser->AddProgramDescription("Computes the interpaddle time differences for adjacent TOF paddles");
     parser->AddCommandLineOption<string>("rec_path", "path to instrument data files", "./*", "i");
-    parser->AddCommandLineOption<string>("out_file", "name of output root file", "out.root", "o");
+    parser->AddCommandLineOption<string>("out_file", "name of output root file", "out_no_offset.root", "o");
     parser->AddCommandLineOption<string>("paddle_nums", "comma seperated paddle numbers to be considered by this script", "1,2,3", "n");
     parser->AddCommandLineOption<string>("paddle_ids", "comma seperated paddle volume id endings to be considered by this script", "4,5,6", "b");
     parser->AddCommandLineOption<int>("vol_id_base", "base of volume ids to be considered by this script", 000000000, "s");
