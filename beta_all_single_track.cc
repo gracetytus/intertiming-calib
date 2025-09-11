@@ -59,34 +59,36 @@ std::vector<int> panel_20_vids = {106300000, 106300100, 106300200};
 std::vector<int> panel_21_vids = {106100200, 106100100, 106100000};
 
 //offsets by paddle
-std::vector<double> panel_1_offsets  = {0.000,0.405,-0.064,0.290,0.003,0.601,-0.099,0.030,0.150,-0.074,-0.058,-0.087};
-std::vector<double> panel_2a_offsets = {0.000,0.267,-0.228,0.250};
-std::vector<double> panel_2b_offsets = {0.000,0.875,0.752,0.681,1.018,0.898};
-std::vector<double> panel_3_offsets  = {0.000,-0.397,0.307,0.334,0.503,0.523,0.867,0.698};
-std::vector<double> panel_4_offsets  = {0.000,0.386,0.406,0.561,0.229,0.937,0.605,0.910};
-std::vector<double> panel_5a_offsets = {0.000,0.234,0.953};
-std::vector<double> panel_5b_offsets = {0.000,0.465,0.487};
-std::vector<double> panel_6_offsets  = {0.000,0.373,0.207,0.657,0.537,0.834,1.035,1.133};
-std::vector<double> panel_7_offsets  = {0.000,0.082,0.158,0.177,0.283,0.360,-0.549,0.091,-0.584,0.037,-0.715,0.128};
-std::vector<double> panel_8_offsets  = {0.000,0.006,-0.304,-0.084,-0.415,-0.004};
-std::vector<double> panel_9_offsets  = {0.000,-0.228,-0.065,-0.148,0.251,0.166};
-std::vector<double> panel_10_offsets = {0.000,0.142,-0.841,-0.319,-0.862,-0.107};
-std::vector<double> panel_11_offsets = {0.000,-0.701,0.876,1.726,1.224,1.459};
-std::vector<double> panel_12_offsets = {0.000,0.377,0.180,0.533,0.284};
-std::vector<double> panel_13_offsets = {0.000,0.484,0.460,0.709,0.781,0.824};
-std::vector<double> panel_14_offsets = {0.000,0.082,0.266,0.548,0.090,0.208,0.332,0.366,0.963,0.525};
-std::vector<double> panel_15_offsets = {0.000,0.353,0.427,0.703,0.947,1.195,2.390,1.480,0.947,0.643};
-std::vector<double> panel_16_offsets = {0.000,-0.019,0.207,0.845,0.688,0.643,0.889,0.669,-0.014,0.887};
-std::vector<double> panel_17_offsets = {0.000,-0.442,0.211,-0.157,0.658,0.194,0.921,0.322,1.184,0.403};
-std::vector<double> panel_18_offsets = {0.000,-0.026,-0.112};
-std::vector<double> panel_19_offsets = {0.000,0.008,0.056};
-std::vector<double> panel_20_offsets = {0.000,0.623,-0.173};
-std::vector<double> panel_21_offsets = {0.000,-0.439,0.027};
+std::vector<double> panel_1_offsets  = {0.000,0.391,-0.069,0.279,-0.002,0.299,-0.430,-0.311,-0.201,-0.441,-0.434,-0.465};
+std::vector<double> panel_2a_offsets = {0.000,0.276,-0.213,0.281};
+std::vector<double> panel_2b_offsets = {0.000,0.848,0.725,0.651,0.976,0.847};
+std::vector<double> panel_3_offsets  = {0.000,-0.397,0.291,0.305,0.463,0.463,0.799,0.781};
+std::vector<double> panel_4_offsets  = {0.000,0.384,0.391,0.523,0.187,0.876,0.544,0.833};
+std::vector<double> panel_5a_offsets = {0.000,0.113,0.828};
+std::vector<double> panel_5b_offsets = {0.000,0.460,0.737};
+std::vector<double> panel_6_offsets  = {0.000,0.366,0.172,0.610,0.479,0.755,0.956,1.034};
+std::vector<double> panel_7_offsets  = {0.000,0.024,0.091,0.092,0.165,0.247,-0.722,-0.048,-0.816,-0.158,-0.979,-0.099};
+std::vector<double> panel_8_offsets  = {0.000,0.023,-0.335,-0.031,-0.465,-0.039};
+std::vector<double> panel_9_offsets  = {0.000,-0.161,-0.051,-0.160,0.212,0.089};
+std::vector<double> panel_10_offsets = {0.000,0.095,-0.922,-0.362,-0.976,-0.233};
+std::vector<double> panel_11_offsets = {0.000,-0.773,0.788,1.622,1.041,1.297};
+std::vector<double> panel_12_offsets = {0.000,0.350,0.119,0.532,0.252};
+std::vector<double> panel_13_offsets = {0.000,0.528,0.495,0.696,0.724,.716};
+std::vector<double> panel_14_offsets = {0.000,-0.043,0.097,0.241,-0.254,-0.184,-0.135,-0.102,0.406,-0.044};
+std::vector<double> panel_15_offsets = {0.000,0.224,0.258,0.428,0.649,0.853,1.981,1.032,0.457,0.134};
+std::vector<double> panel_16_offsets = {0.000,-0.114,-0.017,0.534,0.339,0.242,0.429,0.180,-0.570,0.311};
+std::vector<double> panel_17_offsets = {0.000,-0.555,0.063,-0.419,0.345,-0.154,0.492,-0.129,0.681,0.102};
+std::vector<double> panel_18_offsets = {0.000,-0.042,-0.125};
+std::vector<double> panel_19_offsets = {0.000,-0.018,0.023};
+std::vector<double> panel_20_offsets = {0.000,0.610,-0.184};
+std::vector<double> panel_21_offsets = {0.000,0.610,-0.184};
 std::vector<double> panel_57_offsets = {0.000};
 std::vector<double> panel_58_offsets = {0.000};
 std::vector<double> panel_59_offsets = {0.000};
 std::vector<double> panel_60_offsets = {0.000};
-std::vector<double> panel_to_panel_dt = {0.000, -0.978114, 0.000, -0.307278, 0.0140806, 0.195537, -0.298701, -0.216451, -0.966745, -0.19472, 0.454123, 0.356322, -0.8334457, -1.75968, -1.60851, 0.419803, 0.389443, 0.400362, 0.650278, -0.196017, -0.465978, 0.40507, -0.284614, -0.320594, -0.507714, 0.296483, -0.468475};
+std::vector<double> panel_to_panel_dt = {0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.00,0.00,0.000,0.000};
+//std::vector<double> panel_to_panel_dt = {0.000,-0.725,-4.975,-0.025,0.275,0.425,-0.125,0.025,-0.475,-0.375,0.725,0.675,-0.625,-1.475,-1.575,0.125,-0.175,-0.325,0.025, -0.325,-0.725,0.075,-0.375,-0.125,-0.275,0.575,-0.225};
+//std::vector<double> panel_to_panel_dt = {0.000,-0.762853,0.000,-0.0824612,0.263247,0.306907,-0.0666873,0.0192858,-0.527617,-0.400781,0.660941,0.591601,-0.682084,-1.56759,-1.52817,-0.0315257,-0.103326,-0.108428,0.108635,-0.369577,-0.631412,0.0953694,-0.385781,-0.170123,-0.268769,0.44691,-0.211055};
 
 struct HitInfo {
     double adj_time;
@@ -289,6 +291,7 @@ int main(int argc, char* argv[]) {
 	bool is_outer_tof = false;
 	bool is_inner_tof = false;
 	int n_relevant_hits = 0;
+	//bool is_thru_going = false;
 
 	for (const auto &hit : Event->GetHitSeries()) {
             int vol_id = hit.GetVolumeId();
@@ -321,12 +324,31 @@ int main(int argc, char* argv[]) {
 	// checking requirement that there is at least one hit in outer tof and one hit in inner tof
 	if (!(is_outer_tof && is_inner_tof)) continue;
 
-    if (hit_infos.find("panel_1") == hit_infos.end()) continue;
+	        // Check for thru-going condition
+        //bool has_panel_1   = hit_infos.count("panel_1") > 0;
+        //bool has_panel_2   = (hit_infos.count("panel_2a") > 0) || (hit_infos.count("panel_2b") > 0);
+        //bool has_panel_7   = hit_infos.count("panel_7") > 0;
 
-    double t_panel1 = hit_infos["panel_1"].adj_time;
-    TVector3 pos_panel1 = hit_infos["panel_1"].pos;
+        //if (has_panel_1 && has_panel_2 && has_panel_7) {
+                //is_thru_going = true;
+        //}
 
-    const double c_mm_per_ns = 299.705;
+        //if (!(is_thru_going)) continue;
+
+    //if (hit_infos.find("panel_1") == hit_infos.end()) continue;
+
+    //double t_panel1 = hit_infos["panel_1"].adj_time;
+    //TVector3 pos_panel1 = hit_infos["panel_1"].pos;
+	
+	// reject events with certain panels
+	if (hit_infos.count("panel_4") ||
+    		hit_infos.count("panel_5a") ||
+    		hit_infos.count("panel_21") ||
+		hit_infos.count("panel_58")) {
+    		continue;
+	}
+
+        const double c_mm_per_ns = 299.705;
 
         // loop over all unique panel pairs
         for (auto it1 = hit_infos.begin(); it1 != hit_infos.end(); ++it1) {
