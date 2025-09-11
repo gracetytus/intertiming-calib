@@ -94,11 +94,39 @@ int main(int argc, char* argv[]){
         if(Event->GetNTracks() != 1){
             continue;
         }
+
+	  vector<int> tof_track_indices = Event->GetHitTrackIndex();
+    bool skip_event = false;
+    int first_idx = -2;
+
+    for (size_t j=0; j < tof_track_indices.size(); j++) {
+        int idx = tof_track_indices[j];
+        if (idx == -1) {
+            skip_event = true;
+            break;
+        }
+        if (j==0) {
+            first_idx = idx;
+        } else if (idx != first_idx) {
+            skip_event = true;
+            break;
+        }
+    }
+
+    if (skip_event) continue;
+    bool is_outer_tof = false;
+    bool is_inner_tof = false;
         n_relevant_hits = 0;
         fill(paddle_times.begin(), paddle_times.end(), -1);
         for(GRecoHit hit:Event->GetHitSeries()){
             vol_id = hit.GetVolumeId();
             if(GGeometryObject::IsTofVolume(vol_id)){
+		if (GGeometryObject::IsUmbrellaVolume(vol_id)) {
+                is_outer_tof = true;
+            }
+            if (GGeometryObject::IsCubeVolume(vol_id)) {
+                is_inner_tof = true;
+            }
                 for(uint j=0; j<paddle_ids.size(); j++){
                     if(vol_id==paddle_ids[j]){
                         paddle_times[j] = hit.GetTime();
@@ -109,6 +137,9 @@ int main(int argc, char* argv[]){
         }
         if(n_relevant_hits<2){ // skip any events that can not be of interest
             continue;
+        }
+	if (!(is_outer_tof && is_inner_tof)) {
+        continue;
         }
         for(uint j=0; j<paddle_ids.size()-1; j++){
             if((paddle_times[j]>0)&&(paddle_times[j+1]>0)){
@@ -176,10 +207,10 @@ int main(int argc, char* argv[]){
             std::cerr << "Warning: Fit failed for histogram " << time_diffs[i]->GetName() << std::endl;
         }
         
-        
         canvas->SaveAs(pdf_name_fmt.str().c_str());
-        canvas->Write(canvas->GetName());
-        time_diffs[i]->Write(time_diffs[i]->GetName());
+        canvas->Write();
+        time_diffs[i]->Write();
     }
+    out_file.Write();
     out_file.Close();
 }
