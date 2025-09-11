@@ -39,10 +39,16 @@ void compare_tdiffs() {
     h_vert->SetLineColor(kBlack);
     h_vert->SetLineWidth(1);
     h_vert->SetStats(0);
-
-    // Create canvas
+	
+    TFile* fout = new TFile("tdiff_comparison.root", "RECREATE");
     TCanvas* c = new TCanvas("c", "Tdiff Comparison", 1000, 700);
     c->cd();
+
+
+
+    // Create canvas
+    //TCanvas* c = new TCanvas("c", "Tdiff Comparison", 1000, 700);
+    //c->cd();
     
 
     double max_y = std::max(h_horiz->GetMaximum(), h_vert->GetMaximum());
@@ -101,10 +107,15 @@ void compare_tdiffs() {
     // Save canvas
     c->SaveAs("tdiff_comparison.pdf");
 
-    TFile* fout = new TFile("tdiff_comparison.root", "RECREATE");
+    //TFile* fout = new TFile("tdiff_comparison.root", "RECREATE");
+    fout->cd(); 
     c->Write();
+    h_horiz->Write("horiz_tdiff");
+    h_vert->Write("vert_tdiff");
+    
     fit_horiz->Write();
     fit_vert->Write();
+    c->Write("c");
     fout->Close();
 }
 
