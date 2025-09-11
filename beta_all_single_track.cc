@@ -86,8 +86,8 @@ std::vector<double> panel_57_offsets = {0.000};
 std::vector<double> panel_58_offsets = {0.000};
 std::vector<double> panel_59_offsets = {0.000};
 std::vector<double> panel_60_offsets = {0.000};
-std::vector<double> panel_to_panel_dt = {0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.00,0.00,0.000,0.000};
-//std::vector<double> panel_to_panel_dt = {0.000,-0.725,-4.975,-0.025,0.275,0.425,-0.125,0.025,-0.475,-0.375,0.725,0.675,-0.625,-1.475,-1.575,0.125,-0.175,-0.325,0.025, -0.325,-0.725,0.075,-0.375,-0.125,-0.275,0.575,-0.225};
+//std::vector<double> panel_to_panel_dt = {0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.00,0.00,0.000,0.000};
+std::vector<double> panel_to_panel_dt = {0.000,-0.725,-4.975,-0.025,0.275,0.425,-0.125,0.025,-0.475,-0.375,0.725,0.675,-0.625,-1.475,-1.575,0.125,-0.175,-0.325,0.025, -0.325,-0.725,0.075,-0.375,-0.125,-0.275,0.575,-0.225};
 //std::vector<double> panel_to_panel_dt = {0.000,-0.762853,0.000,-0.0824612,0.263247,0.306907,-0.0666873,0.0192858,-0.527617,-0.400781,0.660941,0.591601,-0.682084,-1.56759,-1.52817,-0.0315257,-0.103326,-0.108428,0.108635,-0.369577,-0.631412,0.0953694,-0.385781,-0.170123,-0.268769,0.44691,-0.211055};
 
 struct HitInfo {
@@ -262,69 +262,69 @@ int main(int argc, char* argv[]) {
                 progress.update();
         }
 
-	// single track requirement
+	    // single track requirement
         if (Event->GetNTracks() != 1) continue;
 	
-	// requiring all TOF hits to be on the same track
-	vector<int> tof_track_indices = Event->GetHitTrackIndex();
-	bool skip_event = false;
-	int first_idx = -2;
-	for (size_t j = 0; j < tof_track_indices.size(); j++) {
-    		int idx = tof_track_indices[j];
-    		if (idx == -1) {
-                    skip_event = true;
-        	    break;
-    		}
-    		if (j == 0) {
-        	    first_idx = idx;
-    		} else if (idx != first_idx) {
-        	    skip_event = true;
+        // requiring all TOF hits to be on the same track
+        vector<int> tof_track_indices = Event->GetHitTrackIndex();
+        bool skip_event = false;
+        int first_idx = -2;
+        for (size_t j = 0; j < tof_track_indices.size(); j++) {
+                int idx = tof_track_indices[j];
+                if (idx == -1) {
+                        skip_event = true;
                     break;
                 }
-	}
-	if (skip_event) continue;
-	
-	// requiring at least one hit on outer tof and one hit on inner tof
-        // and also getting the times and positions since it requires opening the event to see the volume id anyway
-        //
-	std::map<std::string, HitInfo> hit_infos;
-	bool is_outer_tof = false;
-	bool is_inner_tof = false;
-	int n_relevant_hits = 0;
-	//bool is_thru_going = false;
-
-	for (const auto &hit : Event->GetHitSeries()) {
-            int vol_id = hit.GetVolumeId();
-            if (!GGeometryObject::IsTofVolume(vol_id)) continue;
-		
- 	    if (GGeometryObject::IsUmbrellaVolume(vol_id)) is_outer_tof = true;
-        if (GGeometryObject::IsCubeVolume(vol_id)) is_inner_tof = true;
-    
-        auto it = volid_lookup.find(vol_id);
-        if (it != volid_lookup.end()) {
-            const std::string &panel_name = it->second.panel;
-            size_t paddle_offset_index = it->second.index;
-
-            double raw_time = hit.GetTime();
-            double paddle_offset = panel_offsets[panel_name]->at(paddle_offset_index);
-            //double panel_offset = panel_to_panel_offsets.at(panel_name);
-
-            double adj_time = raw_time - paddle_offset;
-            //hit_times[panel_name] = adj_time;
-            TVector3 pos = hit.GetPosition();
-            hit_infos[panel_name] = {adj_time, pos};
-                    n_relevant_hits++;
-		
-	        }	    
+                if (j == 0) {
+                    first_idx = idx;
+                } else if (idx != first_idx) {
+                    skip_event = true;
+                        break;
+                    }
         }
+        if (skip_event) continue;
 	
-	// requiring at least two relevant hits
-	if (n_relevant_hits < 2) continue;
+	    // requiring at least one hit on outer tof and one hit on inner tof
+        // and also getting the times and positions since it requires opening the event to see the volume id anyway
+            //
+        std::map<std::string, HitInfo> hit_infos;
+        bool is_outer_tof = false;
+        bool is_inner_tof = false;
+        int n_relevant_hits = 0;
+        //bool is_thru_going = false;
 
-	// checking requirement that there is at least one hit in outer tof and one hit in inner tof
-	if (!(is_outer_tof && is_inner_tof)) continue;
+        for (const auto &hit : Event->GetHitSeries()) {
+                int vol_id = hit.GetVolumeId();
+                if (!GGeometryObject::IsTofVolume(vol_id)) continue;
+            
+            if (GGeometryObject::IsUmbrellaVolume(vol_id)) is_outer_tof = true;
+            if (GGeometryObject::IsCubeVolume(vol_id)) is_inner_tof = true;
+        
+            auto it = volid_lookup.find(vol_id);
+            if (it != volid_lookup.end()) {
+                const std::string &panel_name = it->second.panel;
+                size_t paddle_offset_index = it->second.index;
 
-	        // Check for thru-going condition
+                double raw_time = hit.GetTime();
+                double paddle_offset = panel_offsets[panel_name]->at(paddle_offset_index);
+                //double panel_offset = panel_to_panel_offsets.at(panel_name);
+
+                double adj_time = raw_time - paddle_offset;
+                //hit_times[panel_name] = adj_time;
+                TVector3 pos = hit.GetPosition();
+                hit_infos[panel_name] = {adj_time, pos};
+                        n_relevant_hits++;
+            
+                }	    
+            }
+	
+        // requiring at least two relevant hits
+        if (n_relevant_hits < 2) continue;
+
+        // checking requirement that there is at least one hit in outer tof and one hit in inner tof
+        if (!(is_outer_tof && is_inner_tof)) continue;
+
+        // Check for thru-going condition
         //bool has_panel_1   = hit_infos.count("panel_1") > 0;
         //bool has_panel_2   = (hit_infos.count("panel_2a") > 0) || (hit_infos.count("panel_2b") > 0);
         //bool has_panel_7   = hit_infos.count("panel_7") > 0;
@@ -335,18 +335,18 @@ int main(int argc, char* argv[]) {
 
         //if (!(is_thru_going)) continue;
 
-    //if (hit_infos.find("panel_1") == hit_infos.end()) continue;
+        //if (hit_infos.find("panel_1") == hit_infos.end()) continue;
 
-    //double t_panel1 = hit_infos["panel_1"].adj_time;
-    //TVector3 pos_panel1 = hit_infos["panel_1"].pos;
-	
-	// reject events with certain panels
-	if (hit_infos.count("panel_4") ||
-    		hit_infos.count("panel_5a") ||
-    		hit_infos.count("panel_21") ||
-		hit_infos.count("panel_58")) {
-    		continue;
-	}
+        //double t_panel1 = hit_infos["panel_1"].adj_time;
+        //TVector3 pos_panel1 = hit_infos["panel_1"].pos;
+        
+        // reject events with certain panels
+        if (hit_infos.count("panel_4") ||
+            hit_infos.count("panel_5a") ||
+            hit_infos.count("panel_21") ||
+            hit_infos.count("panel_58")) {
+                continue;
+        }
 
         const double c_mm_per_ns = 299.705;
 
@@ -358,21 +358,21 @@ int main(int argc, char* argv[]) {
                 const std::string &panel1 = it1->first;
                 const std::string &panel2 = it2->first;
 
-                double t1 = it1->second.adj_time;
-                double t2 = it2->second.adj_time;
                 TVector3 pos1 = it1->second.pos;
                 TVector3 pos2 = it2->second.pos;
-
-                double delta_t = std::abs(t2 - t1);
-                if (delta_t == 0) continue;
-
                 TVector3 diff = pos2 - pos1;
                 double distance = diff.Mag();
 
-                // pick appropriate dt correction (could be directional, so think about symmetry)
-                double dt = panel_to_panel_offsets.at(panel2); 
+                double t1 = it1->second.adj_time;
+                double t2 = it2->second.adj_time;
+                double delta_t = std::abs(t2 - t1);
+                double dt1 = panel_to_panel_offsets.at(panel1);
+                double dt2 = panel_to_panel_offsets.at(panel2); 
+                double delta_dt = std::abs(dt2 - dt1);
 
-                double beta = distance / (c_mm_per_ns * (delta_t + dt));
+                if (delta_t + delta_dt == 0) continue;
+
+                double beta = distance / (c_mm_per_ns * (delta_t + delta_dt));
 
                 h_beta->Fill(beta);
             }
