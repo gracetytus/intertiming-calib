@@ -301,13 +301,13 @@ int main(int argc, char* argv[]) {
             double t_other = kv.second.adj_time;
             TVector3 pos_other = kv.second.pos;
 
-            double delta_t = std::abs(t_other - t_panel1); 
+            double delta_t = t_other - t_panel1; 
             if (delta_t == 0) continue; //avoid seg-fault from somehow dividing by 0
 
             TVector3 diff = pos_other - pos_panel1;
             double distance = diff.Mag();
 
-            double beta = (distance/(c_mm_per_ns*delta_t));
+            double beta = (distance/std::abs(c_mm_per_ns*delta_t));
 
             double inter_panel_offset = (distance/c_mm_per_ns) - delta_t;
 
