@@ -365,16 +365,34 @@ int main(int argc, char* argv[]) {
 
                 double t1 = it1->second.adj_time;
                 double t2 = it2->second.adj_time;
-                double delta_t = std::abs(t2 - t1);
                 double dt1 = panel_to_panel_offsets.at(panel1);
                 double dt2 = panel_to_panel_offsets.at(panel2); 
-                double delta_dt = std::abs(dt2 - dt1);
 
-                if (delta_t + delta_dt == 0) continue;
+		if (t2 > t1) {
+		    double t_first = t1;
+		    double dt_first = dt1;
+		    double t_second = t2;
+		    double dt_second = dt2;
 
-                double beta = distance / (c_mm_per_ns * (delta_t + delta_dt));
+		     double delta_t = t_second - t_first;
+                    double delta_dt = dt_second - dt_first;
 
-                h_beta->Fill(beta);
+                    if (delta_t + delta_dt == 0) continue;
+                    double beta = distance /(c_mm_per_ns * (delta_t + delta_dt));
+		    h_beta -> Fill(beta);
+		}
+		else {
+		    double t_first = t2;
+		    double dt_first = dt2;
+		    double t_second = t1;
+		    double dt_second = dt1;
+		    double delta_t = t_second - t_first;
+                    double delta_dt = dt_second - dt_first;
+		    
+		    if (delta_t + delta_dt == 0) continue;
+		    double beta = distance /(c_mm_per_ns * (delta_t + delta_dt));
+		    h_beta -> Fill(beta);
+		}
             }
         }
     }
