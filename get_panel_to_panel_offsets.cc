@@ -331,61 +331,54 @@ int main(int argc, char* argv[]) {
             }
         }
 
-    std::map<std::string,  double> mode_panel_offsets; 
-    //double> mean_panel_offsets;
+        std::map<std::string,  double> mode_panel_offsets; 
+        //double> mean_panel_offsets;
 
-    namespace fs = std::filesystem;
+        namespace fs = std::filesystem;
 
-    // Make sure the output directory exists
-    if (!fs::exists(out_path)) {
-        fs::create_directories(out_path);
-    }
-
-    // Loop over histograms after the event loop
-    for (auto &kv : hists_offsets) {
-        const std::string &panel = kv.first;
-        TH1D *hist = kv.second;
-
-        // Print mean offset
-        //double mean_offset = hist->GetMean();
-        //std::cout << "Panel offset for " << panel
-                //<< " relative to panel_1 = "
-                //<< mean_offset << std::endl;
-        //mean_panel_offsets[panel] = mean_offset;
-
-	// Find the mode (bin with maximum entries)
-    int max_bin = hist->GetMaximumBin();
-    double mode_offset = hist->GetBinCenter(max_bin);
-
-        std::cout << "Panel offset for " << panel
-                << " relative to panel_1 (mode) = "
-                << mode_offset << std::endl;
-        mode_panel_offsets[panel] = mode_offset;
-
-
-        // Draw histogram and save as PDF
-        TCanvas canvas("canvas", "Histogram", 800, 600);
-        hist->Draw();
-
-        // Construct output filename
-        std::string pdf_filename = fs::path(out_path) / (panel + "_offsets.pdf");
-        canvas.Print(pdf_filename.c_str());
-
-        // Optionally, also save ROOT file per histogram
-        std::string root_filename = fs::path(out_path) / (panel + "_offsets.root");
-        TFile rootfile(root_filename.c_str(), "RECREATE");
-        hist->Write();
-        rootfile.Close();
-    }
-
-    // Save CSV of mean offsets
-    std::ofstream csvfile(fs::path(out_path) / "mode_panel_offsets.csv");
-    if (csvfile.is_open()) {
-        csvfile << "Panel,Offset\n";
-        for (const auto &kv : mode_panel_offsets) {
-            csvfile << kv.first << "," << kv.second << "\n";
+        // Make sure the output directory exists
+        if (!fs::exists(out_path)) {
+            fs::create_directories(out_path);
         }
-        csvfile.close();
+
+        // Loop over histograms after the event loop
+        for (auto &kv : hists_offsets) {
+            const std::string &panel = kv.first;
+            TH1D *hist = kv.second;
+
+            int max_bin = hist->GetMaximumBin();
+            double mode_offset = hist->GetBinCenter(max_bin);
+
+                std::cout << "Panel offset for " << panel
+                        << " relative to panel_1 (mode) = "
+                        << mode_offset << std::endl;
+                mode_panel_offsets[panel] = mode_offset;
+
+
+                // Draw histogram and save as PDF
+                TCanvas canvas("canvas", "Histogram", 800, 600);
+                hist->Draw();
+
+                // Construct output filename
+                std::string pdf_filename = fs::path(out_path) / (panel + "_offsets.pdf");
+                canvas.Print(pdf_filename.c_str());
+
+                // Optionally, also save ROOT file per histogram
+                std::string root_filename = fs::path(out_path) / (panel + "_offsets.root");
+                TFile rootfile(root_filename.c_str(), "RECREATE");
+                hist->Write();
+                rootfile.Close();
+        }
+
+        // Save CSV of mean offsets
+        std::ofstream csvfile(fs::path(out_path) / "mode_panel_offsets.csv");
+        if (csvfile.is_open()) {
+            csvfile << "Panel,Offset\n";
+            for (const auto &kv : mode_panel_offsets) {
+                csvfile << kv.first << "," << kv.second << "\n";
+            }
+            csvfile.close();
+        }
     }
 }
         
