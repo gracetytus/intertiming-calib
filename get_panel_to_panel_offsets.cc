@@ -304,32 +304,32 @@ int main(int argc, char* argv[]) {
             double delta_t = t_other - t_panel1; 
             if (delta_t == 0) continue; //avoid seg-fault from somehow dividing by 0
 
-	    if (delta_t < 0) {
-	        TVector3 pos_other = kv.second.pos;
-		TVector3 diff = pos_other - pos_panel1;
-		double distance = diff.Mag();
-
-		double inter_panel_offset = -(delta_t) - (distance/std::abs(c_mm_per_ns));
-		
-		auto it = hists_offsets.find(kv.first);
-		if (it != hists_offsets.end()) {
-		    it->second->Fill(inter_panel_offset);
-	    	}
-
-	    if (delta_t > 0) {
+            if (delta_t < 0) {
                 TVector3 pos_other = kv.second.pos;
- 		TVector3 diff = pos_other - pos_panel1;
-		double distance = diff.Mag();
+                TVector3 diff = pos_other - pos_panel1;
+                double distance = diff.Mag();
 
-		double inter_panel_offset = -(delta_t) + (distance/std::abs(c_mm_per_ns));
-		
-		auto it = hists_offsets.find(kv.first);
-		if (it != hists_offsets.end()) {
-		    it->second->Fill(inter_panel_offset);
+                double inter_panel_offset = -(delta_t) - (distance/std::abs(c_mm_per_ns));
+                
+                auto it = hists_offsets.find(kv.first);
+                if (it != hists_offsets.end()) {
+                    it->second->Fill(inter_panel_offset);
                 }
-	    }		
+            }
+
+            if (delta_t > 0) {
+                TVector3 pos_other = kv.second.pos;
+                TVector3 diff = pos_other - pos_panel1;
+                double distance = diff.Mag();
+
+                double inter_panel_offset = -(delta_t) + (distance/std::abs(c_mm_per_ns));
+                
+                auto it = hists_offsets.find(kv.first);
+                if (it != hists_offsets.end()) {
+                    it->second->Fill(inter_panel_offset);
+                }
+            }
         }
-    }
 
     std::map<std::string,  double> mode_panel_offsets; 
     //double> mean_panel_offsets;
