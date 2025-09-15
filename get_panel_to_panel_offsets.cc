@@ -22,6 +22,7 @@
 using std::vector;
 using std::string;
 using std::cout;
+using std::cerr;
 using std::endl;
 using boost::format;
 
@@ -303,30 +304,32 @@ int main(int argc, char* argv[]) {
 
             double delta_t = t_other - t_panel1; 
             if (delta_t == 0) continue; //avoid seg-fault from somehow dividing by 0
+            TVector3 pos_other = kv.second.pos;
+            TVector3 diff = pos_other - pos_panel1;
+            double distance = diff.Mag();
+            double inter_panel_offset = 5;
 
             if (delta_t < 0) {
-                TVector3 pos_other = kv.second.pos;
-                TVector3 diff = pos_other - pos_panel1;
-                double distance = diff.Mag();
-
-                double inter_panel_offset = -(delta_t) - (distance/std::abs(c_mm_per_ns));
+                inter_panel_offset = -(delta_t) - (distance/c_mm_per_ns);
                 
                 auto it = hists_offsets.find(kv.first);
                 if (it != hists_offsets.end()) {
                     it->second->Fill(inter_panel_offset);
                 }
+                else{
+                    cerr << "ERROR FAILED TO FIND PANEL IN PANEL LIST" << endl;
+                }
             }
 
             if (delta_t > 0) {
-                TVector3 pos_other = kv.second.pos;
-                TVector3 diff = pos_other - pos_panel1;
-                double distance = diff.Mag();
-
-                double inter_panel_offset = -(delta_t) + (distance/std::abs(c_mm_per_ns));
+                inter_panel_offset = -(delta_t) + (distance/c_mm_per_ns);
                 
                 auto it = hists_offsets.find(kv.first);
                 if (it != hists_offsets.end()) {
                     it->second->Fill(inter_panel_offset);
+                }
+                else{
+                    cerr << "ERROR FAILED TO FIND PANEL IN PANEL LIST" << endl;
                 }
             }
         }
