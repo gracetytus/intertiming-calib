@@ -281,55 +281,55 @@ int main(int argc, char* argv[]) {
                 hit_infos[panel_name] = {adj_time, pos};
                     n_relevant_hits++;
         
-            }	    
+            }
+        }	    
 
-            if (n_relevant_hits < 2) continue; // checking if there are at least 2 relevant hits to be consdiered for the analysis
-            if (!(is_outer_tof && is_inner_tof)) continue; // checking if track has one hit on inner tof + one hit on outer tof for proper reconstruction
-            if (hit_infos.find("panel_1") == hit_infos.end()) continue; // check if one of the hits is on panel 1
+        if (n_relevant_hits < 2) continue; // checking if there are at least 2 relevant hits to be consdiered for the analysis
+        if (!(is_outer_tof && is_inner_tof)) continue; // checking if track has one hit on inner tof + one hit on outer tof for proper reconstruction
+        if (hit_infos.find("panel_1") == hit_infos.end()) continue; // check if one of the hits is on panel 1
 
-            double t_panel1 = hit_infos["panel_1"].adj_time;
-            TVector3 pos_panel1 = hit_infos["panel_1"].pos;
+        double t_panel1 = hit_infos["panel_1"].adj_time;
+        TVector3 pos_panel1 = hit_infos["panel_1"].pos;
 
-            const double c_mm_per_ns = 299.705; // calculated @ McMurdo with a refractive index of 1.000305 
+        const double c_mm_per_ns = 299.705; // calculated @ McMurdo with a refractive index of 1.000305 
 
-            for (const auto &kv : hit_infos) {
-                if (kv.first == "panel_1") continue; //don't compare panel 1 to itself
+        for (const auto &kv : hit_infos) {
+            if (kv.first == "panel_1") continue; //don't compare panel 1 to itself
 
-                double t_other = kv.second.adj_time;
-                //TVector3 pos_other = kv.second.pos;
+            double t_other = kv.second.adj_time;
+            //TVector3 pos_other = kv.second.pos;
 
-                double delta_t = t_other - t_panel1; 
-                if (delta_t == 0) continue; //avoid seg-fault from somehow dividing by 0
-                TVector3 pos_other = kv.second.pos;
-                TVector3 diff = pos_other - pos_panel1;
-                double distance = diff.Mag();
-                double inter_panel_offset = 5;
+            double delta_t = t_other - t_panel1; 
+            if (delta_t == 0) continue; //avoid seg-fault from somehow dividing by 0
+            TVector3 pos_other = kv.second.pos;
+            TVector3 diff = pos_other - pos_panel1;
+            double distance = diff.Mag();
+            double inter_panel_offset = 5;
 
-                if (delta_t < 0) {
-                    inter_panel_offset = -(delta_t) - (distance/c_mm_per_ns);
-                    
-                    auto it = hists_offsets.find(kv.first);
-                    if (it != hists_offsets.end()) {
-                        it->second->Fill(inter_panel_offset);
-                    }
-                    else{
-                        cerr << "ERROR FAILED TO FIND PANEL IN PANEL LIST" << endl;
-                    }
+            if (delta_t < 0) {
+                inter_panel_offset = -(delta_t) - (distance/c_mm_per_ns);
+                
+                auto it = hists_offsets.find(kv.first);
+                if (it != hists_offsets.end()) {
+                    it->second->Fill(inter_panel_offset);
                 }
-
-                if (delta_t > 0) {
-                    inter_panel_offset = -(delta_t) + (distance/c_mm_per_ns);
-                    
-                    auto it = hists_offsets.find(kv.first);
-                    if (it != hists_offsets.end()) {
-                        it->second->Fill(inter_panel_offset);
-                    }
-                    else{
-                        cerr << "ERROR FAILED TO FIND PANEL IN PANEL LIST" << endl;
-                    }
+                else{
+                    cerr << "ERROR FAILED TO FIND PANEL IN PANEL LIST" << endl;
                 }
-            }    
-        }
+            }
+
+            if (delta_t > 0) {
+                inter_panel_offset = -(delta_t) + (distance/c_mm_per_ns);
+                
+                auto it = hists_offsets.find(kv.first);
+                if (it != hists_offsets.end()) {
+                    it->second->Fill(inter_panel_offset);
+                }
+                else{
+                    cerr << "ERROR FAILED TO FIND PANEL IN PANEL LIST" << endl;
+                }
+            }
+        }    
     }
     std::map<std::string,  double> mode_panel_offsets; 
     //double> mean_panel_offsets;
@@ -378,8 +378,9 @@ int main(int argc, char* argv[]) {
             csvfile << kv.first << "," << kv.second << "\n";
         }
         csvfile.close();
+    
     }
-}
+}  
         
         
 
