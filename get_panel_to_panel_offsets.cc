@@ -299,22 +299,35 @@ int main(int argc, char* argv[]) {
             if (kv.first == "panel_1") continue; //don't compare panel 1 to itself
 
             double t_other = kv.second.adj_time;
-            TVector3 pos_other = kv.second.pos;
+            //TVector3 pos_other = kv.second.pos;
 
             double delta_t = t_other - t_panel1; 
             if (delta_t == 0) continue; //avoid seg-fault from somehow dividing by 0
 
-            TVector3 diff = pos_other - pos_panel1;
-            double distance = diff.Mag();
+	    if (delta_t < 0) {
+	        TVector3 pos_other = kv.second.pos;
+		TVector3 diff = pos_other - pos_panel1;
+		double distance = diff.Mag();
 
-            double beta = (distance/std::abs(c_mm_per_ns*delta_t));
+		double inter_panel_offset = -(delta_t) - (distance/std::abs(c_mm_per_ns));
+		
+		auto it = hists_offsets.find(kv.first);
+		if (it != hists_offsets.end()) {
+		    it->second->Fill(inter_panel_offset);
+	    	}
 
-            double inter_panel_offset = (distance/c_mm_per_ns) - delta_t;
+	    if (delta_t > 0) {
+                TVector3 pos_other = kv.second.pos;
+ 		TVector3 diff = pos_other - pos_panel1;
+		double distance = diff.Mag();
 
-            auto it = hists_offsets.find(kv.first);
-            if (it != hists_offsets.end()) {
-                it->second->Fill(inter_panel_offset);
-            }
+		double inter_panel_offset = -(delta_t) + (distance/std::abs(c_mm_per_ns));
+		
+		auto it = hists_offsets.find(kv.first);
+		if (it != hists_offsets.end()) {
+		    it->second->Fill(inter_panel_offset);
+                }
+	    }		
         }
     }
 
