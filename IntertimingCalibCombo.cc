@@ -168,7 +168,10 @@ int main(int argc, char* argv[]){
 	    
         time_diffs[i]->Fit("gaus");
         TF1* fitted_func = time_diffs[i]->TH1::GetFunction("gaus");
-	    
+
+	
+	time_diffs[i]->Fit("gaus", "RQ");
+
         if (fitted_func) {
             fitted_func->SetLineColor(kRed); 
             fitted_func->SetLineWidth(2); 
@@ -210,6 +213,8 @@ int main(int argc, char* argv[]){
         canvas->SaveAs(pdf_name_fmt.str().c_str());
         canvas->Write();
         time_diffs[i]->Write();
+    	time_diffs[i]->GetListOfFunctions()->Remove(fitted_func);
+	delete fitted_func;
     }
     out_file.Write();
     out_file.Close();
