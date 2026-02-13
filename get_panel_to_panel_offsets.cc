@@ -236,8 +236,7 @@ int main(int argc, char* argv[]) {
     int vol_id = 0, n_relevant_hits = 0;
     progressbar progress(Instrument_Events->GetEntries() / 1000);
 	
-    Instrument_Events->SetBranchAddress("Rec", &Event);
-
+    
     //begin loop
     for (size_t i = 0; i < Instrument_Events->GetEntries(); i++) {
         Instrument_Events->GetEntry(i);
