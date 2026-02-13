@@ -220,7 +220,7 @@ int main(int argc, char* argv[]) {
     }
     TChain* Instrument_Events = new TChain("TreeRec");
     Instrument_Events->SetAutoDelete(true);
-    CEventRec* Event = new CEventRec;
+    CEventRec* Event = nullptr;
     Instrument_Events->SetBranchAddress("Rec", &Event);
     Instrument_Events->Add(data_path.c_str()); 
 
@@ -402,7 +402,6 @@ int main(int argc, char* argv[]) {
 	}
     hists_offsets.clear();
 
-    delete Event;
     delete Instrument_Events;
 }  
         
