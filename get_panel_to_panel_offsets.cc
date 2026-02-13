@@ -371,7 +371,7 @@ int main(int argc, char* argv[]) {
     }
 
     // Loop over histograms after the event loop
-    //TCanvas canvas("canvas", "Histogram", 800, 600);
+    TCanvas canvas("canvas", "Histogram", 800, 600);
     for (auto &kv : hists_offsets) {
         const std::string &panel = kv.first;
         TH1D *hist = kv.second;
@@ -386,13 +386,14 @@ int main(int argc, char* argv[]) {
 
 
         // Draw histogram and save as PDF
-        TCanvas* canvas = new TCanvas("canvas", "Histogram", 800, 600);
+        //TCanvas* canvas = new TCanvas("canvas", "Histogram", 800, 600);
+	canvas.Clear();
 	hist->Draw();
 
         // Construct output filename
         std::string pdf_filename = fs::path(out_path) / (panel + "_offsets.pdf");
-        canvas->Print(pdf_filename.c_str());
-	delete canvas;
+        canvas.Print(pdf_filename.c_str());
+	
         // Optionally, also save ROOT file per histogram
         std::string root_filename = fs::path(out_path) / (panel + "_offsets.root");
         TFile rootfile(root_filename.c_str(), "RECREATE");
@@ -415,7 +416,7 @@ int main(int argc, char* argv[]) {
     	delete kv.second;
 	}
     hists_offsets.clear();
-    delete Event;
+    //delete Event;
     delete Instrument_Events;
 }  
         
