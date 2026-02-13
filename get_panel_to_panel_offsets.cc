@@ -220,7 +220,7 @@ int main(int argc, char* argv[]) {
     }
     TChain* Instrument_Events = new TChain("TreeRec");
     Instrument_Events->SetAutoDelete(true);
-    CEventRec* Event = nullptr;
+    CEventRec* Event = new CEventRec;
     Instrument_Events->SetBranchAddress("Rec", &Event);
     Instrument_Events->Add(data_path.c_str()); 
 
@@ -260,14 +260,17 @@ int main(int argc, char* argv[]) {
         // requiring at least one hit on outer tof and one hit on inner tof
         // and also getting the times and positions since it requires opening the event to see the volume id anyway
         //
-        std::map<std::string, HitInfo> hit_infos; // re-initialized in every event
-        bool is_outer_tof = false;
+        //std::map<std::string, HitInfo> hit_infos; // re-initialized in every event
+        
+	std::map<std::string, std::vector<HitInfo>> hit_infos;
+	
+	bool is_outer_tof = false;
         bool is_inner_tof = false;
         int n_relevant_hits = 0;
 	int n_tracker_hits = 0;
 	int n_tof_hits = 0;
 
-        for (GRecoHit const &hit : Event->GetHitSeries()) {
+        for (GRecoHit &hit : Event->GetHitSeries()) {
             int vol_id = hit.GetVolumeId();
             if (!GGeometryObject::IsTofVolume(vol_id)) {
 		    n_tracker_hits++;
@@ -277,7 +280,7 @@ int main(int argc, char* argv[]) {
             if (GGeometryObject::IsUmbrellaVolume(vol_id)) is_outer_tof = true; //umb + cortina
             if (GGeometryObject::IsCubeVolume(vol_id)) is_inner_tof = true; //cube
            
-	    if (is_outer_tof) continue; //modifying to only work on cube panel to panel 
+	    //if (is_outer_tof) continue; //modifying to only work on cube panel to panel 
 	    n_tof_hits++;
             
 	    auto it = volid_lookup.find(vol_id);
@@ -291,41 +294,50 @@ int main(int argc, char* argv[]) {
                 double adj_time = raw_time - paddle_offset;
                 TVector3 pos = hit.GetPosition();
                 
-                hit_infos[panel_name] = {adj_time, pos};
+                hit_infos[panel_name].push_back({adj_time, pos});
                     n_relevant_hits++;
         
             }
         }	    
+	auto it_p1 = hit_infos.find("panel_1");
+	if (it_p1 == hit_infos.end()) continue;
+	if (it_p1->second.size() != 1) continue;
+	
 	//if (n_tracker_hits != 2) continue; 
 	//if (n_tof_hits !=  3) continue;
         if (n_relevant_hits < 2) continue; // checking if there are at least 2 relevant hits to be consdiered for the analysis
         //if (!(is_outer_tof && is_inner_tof)) continue; // checking if track has one hit on inner tof + one hit on outer tof for proper reconstruction
-        if (hit_infos.find("panel_1") == hit_infos.end()) continue; // check if one of the hits is on panel 1
+        //if (hit_infos.find("panel_1") == hit_infos.end()) continue; // check if one of the hits is on panel 1
 
-        double t_panel1 = hit_infos["panel_1"].adj_time;
-        TVector3 pos_panel1 = hit_infos["panel_1"].pos;
+        //double t_panel1 = hit_infos["panel_1"].adj_time;
+        //TVector3 pos_panel1 = hit_infos["panel_1"].pos;
+	
+	const HitInfo& h1 = hit_infos["panel_1"][0];
+	double t_panel1 = h1.adj_time;
+	const TVector3& pos_panel1 = h1.pos;
 
         const double c_mm_per_ns = 299.705; // calculated @ McMurdo with a refractive index of 1.000305 
 
         for (const auto &kv : hit_infos) {
-            if (kv.first == "panel_1") continue; //don't compare panel 1 to itself
-
-            double t_other = kv.second.adj_time;
-            //TVector3 pos_other = kv.second.pos;
-
-            double delta_t = t_other - t_panel1; 
+            	const std::string& panel_name = kv.first;
+		if (panel_name == "panel_1") continue; //don't compare panel 1 to itself
+		
+	    const auto& hits = kv.second;
+	
+	    const HitInfo& h_other = hits[0];
+	    	 
+            double delta_t = h_other.adj_time - t_panel1; 
             if (delta_t == 0) continue; //avoid seg-fault from somehow dividing by 0
             if (std::abs(delta_t) <= 0.424) continue;
 
-	    TVector3 pos_other = kv.second.pos;
-            TVector3 diff = pos_other - pos_panel1;
+            TVector3 diff = h_other.pos - pos_panel1;
             double distance = diff.Mag();
             double inter_panel_offset = 5;
 
             if (delta_t < 0) {
                 inter_panel_offset = -(delta_t) - (distance/c_mm_per_ns);
                 
-                auto it = hists_offsets.find(kv.first);
+                auto it = hists_offsets.find(panel_name);
                 if (it != hists_offsets.end()) {
                     it->second->Fill(inter_panel_offset);
                 }
@@ -337,7 +349,7 @@ int main(int argc, char* argv[]) {
             if (delta_t > 0) {
                 inter_panel_offset = -(delta_t) + (distance/c_mm_per_ns);
                 
-                auto it = hists_offsets.find(kv.first);
+                auto it = hists_offsets.find(panel_name);
                 if (it != hists_offsets.end()) {
                     it->second->Fill(inter_panel_offset);
                 }
