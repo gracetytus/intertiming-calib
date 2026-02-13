@@ -94,6 +94,9 @@ struct HitInfo {
 };
 
 int main(int argc, char* argv[]) {
+    
+    TH1::AddDirectory(false);    
+
     GOptionParser* parser = GOptionParser::GetInstance();
     parser->AddProgramDescription("Computes the panel to panel timing offsets for TOF panels");
     parser->AddCommandLineOption<string>("rec_path", "path to instrument data files", "./*", "i");
@@ -224,7 +227,7 @@ int main(int argc, char* argv[]) {
         }
     }
     TChain* Instrument_Events = new TChain("TreeRec");
-    Instrument_Events->SetAutoDelete(true);
+    Instrument_Events->SetAutoDelete(false);
     CEventRec* Event = new CEventRec;
     Instrument_Events->SetBranchAddress("Rec", &Event);
     Instrument_Events->Add(data_path.c_str()); 
@@ -402,6 +405,14 @@ int main(int argc, char* argv[]) {
         csvfile.close();
     
     }
+
+    for (auto &kv : hists_offsets) {
+    	delete kv.second;
+	}
+    hists_offsets.clear();
+
+    delete Event;
+    delete Instrument_Events;
 }  
         
         
