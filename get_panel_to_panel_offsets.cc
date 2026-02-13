@@ -30,7 +30,7 @@ using boost::format;
 //volume ids by paddle
 std::vector<int> panel_1_vids  = {110000000, 110000100, 110000200, 110000300, 110000400, 110000500, 110000600, 110000700, 110000800, 110000900, 110001000, 110001100};
 std::vector<int> panel_2a_vids = {111001000, 111000900, 111000800, 111000700};
-std::vector<int> panel_2b_vids = {110000500, 110000400, 110000300, 110000200, 110000100, 110000000};
+std::vector<int> panel_2b_vids = {111000500, 111000400, 111000300, 111000200, 111000100, 111000000};
 std::vector<int> panel_3_vids  = {112000700, 112000600, 112000500, 112000400, 112000300, 112000200, 112000100, 112000000};
 std::vector<int> panel_4_vids  = {114000700, 114000600, 114000500, 114000400, 114000300, 114000200, 114000100, 114000000};
 std::vector<int> panel_5a_vids = {113000700, 113000600, 110000500};
@@ -57,14 +57,16 @@ std::vector<int> panel_20_vids = {106300000, 106300100, 106300200};
 std::vector<int> panel_21_vids = {106100200, 106100100, 106100000};
 
 //offsets by paddle
-std::vector<double> panel_1_offsets  = {0.000,0.391,-0.069,0.279,-0.002,0.299,-0.430,-0.311,-0.201,-0.441,-0.434,-0.465};
-std::vector<double> panel_2a_offsets = {0.000,0.276,-0.213,0.281};
-std::vector<double> panel_2b_offsets = {0.000,0.848,0.725,0.651,0.976,0.847};
-std::vector<double> panel_3_offsets  = {0.000,-0.397,0.291,0.305,0.463,0.463,0.799,0.781};
-std::vector<double> panel_4_offsets  = {0.000,0.384,0.391,0.523,0.187,0.876,0.544,0.833};
-std::vector<double> panel_5a_offsets = {0.000,0.113,0.828};
-std::vector<double> panel_5b_offsets = {0.000,0.460,0.737};
-std::vector<double> panel_6_offsets  = {0.000,0.366,0.172,0.610,0.479,0.755,0.956,1.034};
+std::vector<double> panel_1_offsets  = {0.000,0.431,-0.098,0.324,0.045,0.373,-0.367,-0.224,-0.150,-0.297,-0.298,-0.265};
+std::vector<double> panel_2a_offsets = {0.000,0.276,-0.126,0.349};
+std::vector<double> panel_2b_offsets = {0.000,0.800,0.649,0.624,0.854,0.841};
+std::vector<double> panel_3_offsets  = {0.000,-0.329,0.331,0.333,0.548,0.516,0.845,0.840};
+std::vector<double> panel_4_offsets  = {0.000,0.450,0.376,0.597,0.257,0.880,0.628};
+std::vector<double> panel_5a_offsets = {0.000,0.141,0.742};
+std::vector<double> panel_5b_offsets = {0.000,0.465,0.644};
+std::vector<double> panel_6_offsets  = {0.000,0.359,0.176,0.598,0.497,0.731,0.964,1.028};
+
+/*
 std::vector<double> panel_7_offsets  = {0.000,0.024,0.091,0.092,0.165,0.247,-0.722,-0.048,-0.816,-0.158,-0.979,-0.099};
 std::vector<double> panel_8_offsets  = {0.000,0.023,-0.335,-0.031,-0.465,-0.039};
 std::vector<double> panel_9_offsets  = {0.000,-0.161,-0.051,-0.160,0.212,0.089};
@@ -84,6 +86,7 @@ std::vector<double> panel_57_offsets = {0.000};
 std::vector<double> panel_58_offsets = {0.000};
 std::vector<double> panel_59_offsets = {0.000};
 std::vector<double> panel_60_offsets = {0.000};
+*/
 
 struct HitInfo {
     double adj_time;
@@ -121,6 +124,7 @@ int main(int argc, char* argv[]) {
     add_panel_mapping("panel_5a", panel_5a_vids);
     add_panel_mapping("panel_5b", panel_5b_vids);
     add_panel_mapping("panel_6", panel_6_vids);
+    /*
     add_panel_mapping("panel_7", panel_7_vids);
     add_panel_mapping("panel_8", panel_8_vids);
     add_panel_mapping("panel_9", panel_9_vids);
@@ -140,6 +144,7 @@ int main(int argc, char* argv[]) {
     add_panel_mapping("panel_58", panel_58_vids);
     add_panel_mapping("panel_59", panel_59_vids);
     add_panel_mapping("panel_60", panel_60_vids);
+    */
 
     std::map<std::string, std::vector<int>> panel_vids = {
 	{"panel_2a", panel_2a_vids},
@@ -148,7 +153,8 @@ int main(int argc, char* argv[]) {
 	{"panel_4", panel_4_vids},
 	{"panel_5a", panel_5a_vids},
 	{"panel_5b", panel_5b_vids},
-	{"panel_6", panel_6_vids},
+	{"panel_6", panel_6_vids}
+	/*
 	{"panel_7", panel_7_vids},
 	{"panel_8", panel_8_vids},
 	{"panel_9", panel_9_vids},
@@ -168,6 +174,7 @@ int main(int argc, char* argv[]) {
 	{"panel_58", panel_58_vids}, 
 	{"panel_59", panel_59_vids},
 	{"panel_60", panel_60_vids}
+	*/
     };
 
     std::map<std::string, std::vector<double>*> panel_offsets = {
@@ -178,7 +185,8 @@ int main(int argc, char* argv[]) {
         {"panel_4", &panel_4_offsets},
         {"panel_5a", &panel_5a_offsets},
         {"panel_5b", &panel_5b_offsets},
-        {"panel_6", &panel_6_offsets},
+        {"panel_6", &panel_6_offsets}
+	/*
         {"panel_7", &panel_7_offsets},
         {"panel_8", &panel_8_offsets},
         {"panel_9", &panel_9_offsets},
@@ -198,6 +206,7 @@ int main(int argc, char* argv[]) {
         {"panel_58", &panel_58_offsets},
         {"panel_59", &panel_59_offsets},
         {"panel_60", &panel_60_offsets}
+	*/
     };
     std::map<std::string, TH1D*> hists_offsets;
 
@@ -223,6 +232,8 @@ int main(int argc, char* argv[]) {
     // initialize volume id and n_hits, initialize progress bar
     int vol_id = 0, n_relevant_hits = 0;
     progressbar progress(Instrument_Events->GetEntries() / 1000);
+	
+    Instrument_Events->SetBranchAddress("Rec", &Event);
 
     //begin loop
     for (size_t i = 0; i < Instrument_Events->GetEntries(); i++) {
@@ -259,15 +270,23 @@ int main(int argc, char* argv[]) {
         bool is_outer_tof = false;
         bool is_inner_tof = false;
         int n_relevant_hits = 0;
+	int n_tracker_hits = 0;
+	int n_tof_hits = 0;
 
         for (GRecoHit const &hit : Event->GetHitSeries()) {
             int vol_id = hit.GetVolumeId();
-            if (!GGeometryObject::IsTofVolume(vol_id)) continue;
+            if (!GGeometryObject::IsTofVolume(vol_id)) {
+		    n_tracker_hits++;
+		    continue;
+	    }
             
             if (GGeometryObject::IsUmbrellaVolume(vol_id)) is_outer_tof = true; //umb + cortina
             if (GGeometryObject::IsCubeVolume(vol_id)) is_inner_tof = true; //cube
-        
-            auto it = volid_lookup.find(vol_id);
+           
+	    if (is_outer_tof) continue; //modifying to only work on cube panel to panel 
+	    n_tof_hits++;
+            
+	    auto it = volid_lookup.find(vol_id);
             if (it != volid_lookup.end()) {
                 const std::string &panel_name = it->second.panel;
                 size_t paddle_offset_index = it->second.index;
@@ -283,9 +302,10 @@ int main(int argc, char* argv[]) {
         
             }
         }	    
-
+	//if (n_tracker_hits != 2) continue; 
+	//if (n_tof_hits !=  3) continue;
         if (n_relevant_hits < 2) continue; // checking if there are at least 2 relevant hits to be consdiered for the analysis
-        if (!(is_outer_tof && is_inner_tof)) continue; // checking if track has one hit on inner tof + one hit on outer tof for proper reconstruction
+        //if (!(is_outer_tof && is_inner_tof)) continue; // checking if track has one hit on inner tof + one hit on outer tof for proper reconstruction
         if (hit_infos.find("panel_1") == hit_infos.end()) continue; // check if one of the hits is on panel 1
 
         double t_panel1 = hit_infos["panel_1"].adj_time;
@@ -301,7 +321,9 @@ int main(int argc, char* argv[]) {
 
             double delta_t = t_other - t_panel1; 
             if (delta_t == 0) continue; //avoid seg-fault from somehow dividing by 0
-            TVector3 pos_other = kv.second.pos;
+            if (std::abs(delta_t) <= 0.424) continue;
+
+	    TVector3 pos_other = kv.second.pos;
             TVector3 diff = pos_other - pos_panel1;
             double distance = diff.Mag();
             double inter_panel_offset = 5;
