@@ -357,6 +357,7 @@ int main(int argc, char* argv[]) {
                     cerr << "ERROR FAILED TO FIND PANEL IN PANEL LIST" << endl;
                 }
             }
+	    Event->Clear();
         }    
     }
     std::map<std::string,  double> mode_panel_offsets; 
@@ -413,7 +414,7 @@ int main(int argc, char* argv[]) {
     	delete kv.second;
 	}
     hists_offsets.clear();
-
+    delete Event;
     delete Instrument_Events;
 }  
         
