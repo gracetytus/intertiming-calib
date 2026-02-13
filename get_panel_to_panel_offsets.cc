@@ -232,7 +232,8 @@ int main(int argc, char* argv[]) {
     //begin loop
     for (size_t i = 0; i < Instrument_Events->GetEntries(); i++) {
         Instrument_Events->GetEntry(i);
-        if(i%1000==0){
+        Event->Clear();
+	if(i%1000==0){
             progress.update();
         }
         // single track requirement 
@@ -357,7 +358,6 @@ int main(int argc, char* argv[]) {
                     cerr << "ERROR FAILED TO FIND PANEL IN PANEL LIST" << endl;
                 }
             }
-	    Event->Clear();
         }    
     }
     std::map<std::string,  double> mode_panel_offsets; 
@@ -371,6 +371,7 @@ int main(int argc, char* argv[]) {
     }
 
     // Loop over histograms after the event loop
+    //TCanvas canvas("canvas", "Histogram", 800, 600);
     for (auto &kv : hists_offsets) {
         const std::string &panel = kv.first;
         TH1D *hist = kv.second;
@@ -385,13 +386,13 @@ int main(int argc, char* argv[]) {
 
 
         // Draw histogram and save as PDF
-        TCanvas canvas("canvas", "Histogram", 800, 600);
-        hist->Draw();
+        TCanvas* canvas = new TCanvas("canvas", "Histogram", 800, 600);
+	hist->Draw();
 
         // Construct output filename
         std::string pdf_filename = fs::path(out_path) / (panel + "_offsets.pdf");
-        canvas.Print(pdf_filename.c_str());
-
+        canvas->Print(pdf_filename.c_str());
+	delete canvas;
         // Optionally, also save ROOT file per histogram
         std::string root_filename = fs::path(out_path) / (panel + "_offsets.root");
         TFile rootfile(root_filename.c_str(), "RECREATE");
