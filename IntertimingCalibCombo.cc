@@ -166,7 +166,7 @@ int main(int argc, char* argv[]){
         //canvas->SetLogy();
 
 	    
-        time_diffs[i]->Fit("gaus", "RQ");
+        time_diffs[i]->Fit("gaus", "RQ", "", -5.0, 5.0);
         TF1* fitted_func = time_diffs[i]->TH1::GetFunction("gaus");
 
 	
