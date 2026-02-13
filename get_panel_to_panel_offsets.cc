@@ -65,8 +65,6 @@ std::vector<double> panel_4_offsets  = {0.000,0.450,0.376,0.597,0.257,0.880,0.62
 std::vector<double> panel_5a_offsets = {0.000,0.141,0.742};
 std::vector<double> panel_5b_offsets = {0.000,0.465,0.644};
 std::vector<double> panel_6_offsets  = {0.000,0.359,0.176,0.598,0.497,0.731,0.964,1.028};
-
-/*
 std::vector<double> panel_7_offsets  = {0.000,0.024,0.091,0.092,0.165,0.247,-0.722,-0.048,-0.816,-0.158,-0.979,-0.099};
 std::vector<double> panel_8_offsets  = {0.000,0.023,-0.335,-0.031,-0.465,-0.039};
 std::vector<double> panel_9_offsets  = {0.000,-0.161,-0.051,-0.160,0.212,0.089};
@@ -86,7 +84,7 @@ std::vector<double> panel_57_offsets = {0.000};
 std::vector<double> panel_58_offsets = {0.000};
 std::vector<double> panel_59_offsets = {0.000};
 std::vector<double> panel_60_offsets = {0.000};
-*/
+
 
 struct HitInfo {
     double adj_time;
@@ -127,7 +125,6 @@ int main(int argc, char* argv[]) {
     add_panel_mapping("panel_5a", panel_5a_vids);
     add_panel_mapping("panel_5b", panel_5b_vids);
     add_panel_mapping("panel_6", panel_6_vids);
-    /*
     add_panel_mapping("panel_7", panel_7_vids);
     add_panel_mapping("panel_8", panel_8_vids);
     add_panel_mapping("panel_9", panel_9_vids);
@@ -147,7 +144,6 @@ int main(int argc, char* argv[]) {
     add_panel_mapping("panel_58", panel_58_vids);
     add_panel_mapping("panel_59", panel_59_vids);
     add_panel_mapping("panel_60", panel_60_vids);
-    */
 
     std::map<std::string, std::vector<int>> panel_vids = {
 	{"panel_2a", panel_2a_vids},
@@ -156,8 +152,7 @@ int main(int argc, char* argv[]) {
 	{"panel_4", panel_4_vids},
 	{"panel_5a", panel_5a_vids},
 	{"panel_5b", panel_5b_vids},
-	{"panel_6", panel_6_vids}
-	/*
+	{"panel_6", panel_6_vids},
 	{"panel_7", panel_7_vids},
 	{"panel_8", panel_8_vids},
 	{"panel_9", panel_9_vids},
@@ -177,7 +172,6 @@ int main(int argc, char* argv[]) {
 	{"panel_58", panel_58_vids}, 
 	{"panel_59", panel_59_vids},
 	{"panel_60", panel_60_vids}
-	*/
     };
 
     std::map<std::string, std::vector<double>*> panel_offsets = {
@@ -188,8 +182,7 @@ int main(int argc, char* argv[]) {
         {"panel_4", &panel_4_offsets},
         {"panel_5a", &panel_5a_offsets},
         {"panel_5b", &panel_5b_offsets},
-        {"panel_6", &panel_6_offsets}
-	/*
+        {"panel_6", &panel_6_offsets},
         {"panel_7", &panel_7_offsets},
         {"panel_8", &panel_8_offsets},
         {"panel_9", &panel_9_offsets},
@@ -209,7 +202,6 @@ int main(int argc, char* argv[]) {
         {"panel_58", &panel_58_offsets},
         {"panel_59", &panel_59_offsets},
         {"panel_60", &panel_60_offsets}
-	*/
     };
     std::map<std::string, TH1D*> hists_offsets;
 
@@ -227,7 +219,7 @@ int main(int argc, char* argv[]) {
         }
     }
     TChain* Instrument_Events = new TChain("TreeRec");
-    Instrument_Events->SetAutoDelete(false);
+    Instrument_Events->SetAutoDelete(true);
     CEventRec* Event = new CEventRec;
     Instrument_Events->SetBranchAddress("Rec", &Event);
     Instrument_Events->Add(data_path.c_str()); 
