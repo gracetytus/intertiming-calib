@@ -34,14 +34,11 @@ int main(int argc, char* argv[]) {
 	"p4_out.root",
 	"p5a_out.root",
 	"p5b_out.root",
-	"p6_out.root",
+	"p6_out.root"
+	/*
 	"p7_out.root",
-	"p8_out.root", 
 	"p9_out.root", 
-	"p10_out.root",
-	"p11_out.root",
-	"p12_out.root", 
-	"p13_out.root", 
+	"p10_out.root", 
 	"p14_out.root", 
 	"p15_out.root", 
 	"p16_out.root", 
@@ -50,6 +47,7 @@ int main(int argc, char* argv[]) {
 	"p19_out.root", 
 	"p20_out.root", 
 	"p21_out.root"
+	*/
     };
 
     TH1D* combined_hist = nullptr;
@@ -113,26 +111,29 @@ int main(int argc, char* argv[]) {
     double hist_peak = combined_hist->GetBinContent(combined_hist->GetMaximumBin());
 
     double par[3] = {hist_peak, hist_mean, hist_sigma};
-    TF1* f = new TF1("f", "gaus", fit_range_min, fit_range_max);
-    f->SetParameters(par);
-    combined_hist->Fit(f, "RQ");
-    //TF1* f = new TF1("f", "gaus(0)+gaus(3)", fit_range_min, fit_range_max);
-    //f->SetParameters(par);
-    //combined_hist->Fit(f, "RQ"); // final fit (quiet)
+    TF1* f1 = new TF1("f1", "gaus", fit_range_min, fit_range_max);
+    f1->SetParameters(par);
+    combined_hist->Fit(f1, "RQ");
+    TF1* f2 = new TF1("f2", "gaus(0)+gaus(3)", fit_range_min, fit_range_max);
+    f2->SetParameters(
+		    f1->GetParameter(0), f1->GetParameter(1), f1->GetParameter(2),
+		    0.5 * f1->GetParameter(0), f1->GetParameter(1), 2.0 * f1->GetParameter(2)
+		    );
+    combined_hist->Fit(f2, "RQ"); // final fit (quiet)
 
-    f->SetLineColor(kRed);
-    f->SetLineWidth(2);
-    f->Draw("SAME");
+    f1->SetLineColor(kRed);
+    f1->SetLineWidth(2);
+    f1->Draw("SAME");
 
     const double PI = 3.14159265358979323846;
 
-    double amp1 = f->GetParameter(0);
-    double sigma1 = f->GetParameter(2);
+    double amp1 = f2->GetParameter(0);
+    double sigma1 = f2->GetParameter(2);
     double area1 = amp1 * sigma1 * std::sqrt(2 * PI);
 
-    //double amp2 = f->GetParameter(3);
-    //double sigma2 = f->GetParameter(5);
-    //double area2 = amp2 * sigma2 * std::sqrt(2 * PI);
+    double amp2 = f2->GetParameter(3);
+    double sigma2 = f2->GetParameter(5);
+    double area2 = amp2 * sigma2 * std::sqrt(2 * PI);
 
     TLegend* legend = new TLegend(0.62, 0.64, 0.9, 0.9);
     legend->SetBorderSize(0);
@@ -142,13 +143,13 @@ int main(int argc, char* argv[]) {
 
     legend->AddEntry((TObject*)0, (boost::format("Events = %d") % n_entries).str().c_str(), "");
     legend->AddEntry(combined_hist, "Combined Data", "l");
-    legend->AddEntry(f, "Gaussian Fit", "l");
-    legend->AddEntry((TObject*)0, (boost::format("#mu = %.3f ns") % f->GetParameter(1)).str().c_str(), "");
-    legend->AddEntry((TObject*)0, (boost::format("#sigma = %.3f ns") % f->GetParameter(2)).str().c_str(), "");
-    //legend->AddEntry((TObject*)0, (boost::format("#mu_{2} = %.3f ns") % f->GetParameter(4)).str().c_str(), "");
-    //legend->AddEntry((TObject*)0, (boost::format("#sigma_{2} = %.3f ns") % f->GetParameter(5)).str().c_str(), "");
-    //legend->AddEntry((TObject*)0, (boost::format("Area_{1} = %.0f") % area1).str().c_str(), "");
-    //legend->AddEntry((TObject*)0, (boost::format("Area_{2} = %.0f") % area2).str().c_str(), "");
+    legend->AddEntry(f2, "Gaussian Fit", "l");
+    legend->AddEntry((TObject*)0, (boost::format("#mu = %.3f ns") % f2->GetParameter(1)).str().c_str(), "");
+    legend->AddEntry((TObject*)0, (boost::format("#sigma = %.3f ns") % f2->GetParameter(2)).str().c_str(), "");
+    legend->AddEntry((TObject*)0, (boost::format("#mu_{2} = %.3f ns") % f2->GetParameter(4)).str().c_str(), "");
+    legend->AddEntry((TObject*)0, (boost::format("#sigma_{2} = %.3f ns") % f2->GetParameter(5)).str().c_str(), "");
+    legend->AddEntry((TObject*)0, (boost::format("Area_{1} = %.0f") % area1).str().c_str(), "");
+    legend->AddEntry((TObject*)0, (boost::format("Area_{2} = %.0f") % area2).str().c_str(), "");
     
     legend->Draw("SAME");
 
@@ -156,7 +157,7 @@ int main(int argc, char* argv[]) {
     out_file->cd();
     canvas->Write("combined_canvas");
     combined_hist->Write("combined_hist");
-    f->Write("double_gaussian_fit");
+    f2->Write("double_gaussian_fit");
     out_file->Close();
 
     canvas->SaveAs("combined_tdiff_double_gauss.pdf");

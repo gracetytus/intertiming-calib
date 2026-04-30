@@ -125,3 +125,15 @@ target_link_libraries(BetaAllST ${LIB_DIRS})
 add_executable(HorizSingleGlob horiz_single_glob.cc)
 target_include_directories(HorizSingleGlob PRIVATE ${GAPS_INCLUDE_DIRS}/gaps)
 target_link_libraries(HorizSingleGlob ${LIB_DIRS})
+
+add_executable(DTS delta_t_selective.cc)
+target_include_directories(DTS PRIVATE ${GAPS_INCLUDE_DIRS}/gaps)
+target_link_libraries(DTS ${LIB_DIRS})
+
+add_executable(PDF beta_w_pdf.cc)
+target_include_directories(PDF PRIVATE ${GAPS_INCLUDE_DIRS}/gaps)
+target_link_libraries(PDF ${LIB_DIRS})
+
+add_executable(TestStripPos test_strip.cc)
+target_include_directories(TestStripPos PRIVATE ${GAPS_INCLUDE_DIRS}/gaps)
+target_link_libraries(TestStripPos ${LIB_DIRS})

@@ -32,7 +32,7 @@ using boost::format;
 //volume ids by paddle
 std::vector<int> panel_1_vids  = {110000000, 110000100, 110000200, 110000300, 110000400, 110000500, 110000600, 110000700, 110000800, 110000900, 110001000, 110001100};
 std::vector<int> panel_2a_vids = {111001000, 111000900, 111000800, 111000700};
-std::vector<int> panel_2b_vids = {111000500, 111000400, 111000300, 111000200, 111000100, 111000000};
+std::vector<int> panel_2b_vids = {110000500, 110000400, 110000300, 110000200, 110000100, 110000000};
 std::vector<int> panel_3_vids  = {112000700, 112000600, 112000500, 112000400, 112000300, 112000200, 112000100, 112000000};
 std::vector<int> panel_4_vids  = {114000700, 114000600, 114000500, 114000400, 114000300, 114000200, 114000100, 114000000};
 std::vector<int> panel_5a_vids = {113000700, 113000600, 110000500};
@@ -88,11 +88,11 @@ std::vector<double> panel_59_offsets = {0.000};
 std::vector<double> panel_60_offsets = {0.000};
 //std::vector<double> panel_to_panel_dt = {0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,.000,0.000,0.00,0.00,0.000,0.000};
 //std::vector<double> panel_to_panel_dt = {0.000,-0.675,0.000,-0.075,0.325,0.025,-0.075,0.025,0.475,0.475,-0.725,-0.675,0.675,1.525,1.475,0.125,-0.025,-0.275,0.275,-0.425,-0.875,0.075,-0.375,-0.125,-0.275,0.575,-0.175}; exactly two hits in the tracker
-//std::vector<double> panel_to_panel_dt = {0.000,-0.675,0.000,-0.025,0.375,0.375,-0.025,0.025,0.525,0.325,-0.625,-0.625,0.525,1.425,1.425,0.075,-0.225,-0.225,0.025,-0.375,-0.725,0.125,-0.375,-0.025,-0.275,0.575,-0.225}; exactly one hit in the tracker
+std::vector<double> panel_to_panel_dt = {0.000,-0.675,0.000,-0.025,0.375,0.375,-0.025,0.025,0.525,0.325,-0.625,-0.625,0.525,1.425,1.425,0.075,-0.225,-0.225,0.025,-0.375,-0.725,0.125,-0.375,-0.025,-0.275,0.575,-0.225}; //exactly one hit in the tracker
 //std::vector<double> panel_to_panel_dt = {0.000,-0.725,0.000,0.025,0.075,0.425,0.025,0.025,0.425,0.325,-0.725,-0.725,0.575,1.525,1.525,-0.075,-0.175,-0.325,-0.025,-0.325,-0.725,0.225,-0.325,-0.125,-0.325,0.575,-0.325}; exactly 0 hits in the tracker
 //std::vector<double> panel_to_panel_dt = {0.000,-0.762853,0.000,-0.0824612,0.263247,0.306907,-0.0666873,0.0192858,-0.527617,-0.400781,0.660941,0.591601,-0.682084,-1.56759,-1.52817,-0.0315257,-0.103326,-0.108428,0.108635,-0.369577,-0.631412,0.0953694,-0.385781,-0.170123,-0.268769,0.44691,-0.211055}; means
 //std::vector<double> panel_to_panel_dt = {0.000,-0.725,0.000,0.025,0.075,0.425,0.025,0.025,0.425,0.325,-0.725,-0.725,0.575,1.525,1.525,-0.075,-0.175,-0.325,-0.025,-0.325,-0.725,0.225,-0.325,-0.125,-0.325,0.575,-0.325}; exactly zero hits in the tracker and > three hits in the tof
-std::vector<double> panel_to_panel_dt = {0.000,-0.725,0.000,-0.075,0.075,0.425,0.025,0.025,0.425,0.425,-0.725,-0.675,0.675,1.475,1.575,-0.075,-0.325,-0.325,-0.025,-0.325,-0.725,0.175,-0.325,-0.125,-0.325,0.575,-0.325};
+//std::vector<double> panel_to_panel_dt = {0.000,-0.725,0.000,-0.075,0.075,0.425,0.025,0.025,0.425,0.425,-0.725,-0.675,0.675,1.475,1.575,-0.075,-0.325,-0.325,-0.025,-0.325,-0.725,0.175,-0.325,-0.125,-0.325,0.575,-0.325};
 
 struct HitInfo {
     double adj_time;
@@ -152,8 +152,8 @@ int main(int argc, char* argv[]) {
 
     std::map<std::string, std::vector<int>> panel_vids = {
 	{"panel_2a", panel_2a_vids},
-        {"panel_2b", panel_2b_vids},
-        {"panel_3",  panel_3_vids},
+    {"panel_2b", panel_2b_vids},
+    {"panel_3",  panel_3_vids},
 	{"panel_4", panel_4_vids},
 	{"panel_5a", panel_5a_vids},
 	{"panel_5b", panel_5b_vids},
@@ -244,7 +244,7 @@ int main(int argc, char* argv[]) {
     TH1D* h_beta = new TH1D(
         "beta_all",
         "Beta reconstructed between all panel pairs; #beta [v/c]; Counts",
-        200, -2, 2
+        200, 0, 20
     );
 
     TChain* Instrument_Events = new TChain("TreeRec");
@@ -295,7 +295,7 @@ int main(int argc, char* argv[]) {
         bool is_outer_tof = false;
         bool is_inner_tof = false;
         int n_relevant_hits = 0;
-        //bool is_thru_going = false;
+        bool is_thru_going = false;
 	int n_tracker_hits = 0;
 
         for (const auto &hit : Event->GetHitSeries()) {
@@ -325,7 +325,7 @@ int main(int argc, char* argv[]) {
             
                 }	    
             }
-	if (n_tracker_hits != 1) continue;
+	if (n_tracker_hits <1) continue;
         // requiring at least two relevant hits
         if (n_relevant_hits < 2) continue;
 
@@ -333,50 +333,43 @@ int main(int argc, char* argv[]) {
         if (!(is_outer_tof && is_inner_tof)) continue;
 
         // Check for thru-going condition
-        //bool has_panel_1   = hit_infos.count("panel_1") > 0;
+        bool has_panel_1   = hit_infos.count("panel_1") > 0;
         //bool has_panel_2   = (hit_infos.count("panel_2a") > 0) || (hit_infos.count("panel_2b") > 0);
-        //bool has_panel_7   = hit_infos.count("panel_7") > 0;
+        bool has_panel_7   = hit_infos.count("panel_7") > 0;
 
-        //if (has_panel_1 && has_panel_2 && has_panel_7) {
-                //is_thru_going = true;
-        //}
+        if (has_panel_1 && has_panel_7) {
+                is_thru_going = true;
+        }
 
-        //if (!(is_thru_going)) continue;
+        if (!(is_thru_going)) continue;
 
-        //if (hit_infos.find("panel_1") == hit_infos.end()) continue;
+        if (hit_infos.find("panel_1") == hit_infos.end()) continue;
 
         //double t_panel1 = hit_infos["panel_1"].adj_time;
         //TVector3 pos_panel1 = hit_infos["panel_1"].pos;
 
         const double c_mm_per_ns = 299.705;
 
-        // loop over all unique panel pairs
-        for (auto it1 = hit_infos.begin(); it1 != hit_infos.end(); ++it1) {
-            auto it2 = it1;
-            ++it2;
-            for (; it2 != hit_infos.end(); ++it2) {
-                const std::string &panel1 = it1->first;
-                const std::string &panel2 = it2->first;
+        if (hit_infos.count("panel_1") && hit_infos.count("panel_7")) {
+            const auto &hit1 = hit_infos.at("panel_1");
+            const auto &hit7 = hit_infos.at("panel_7");
 
-                TVector3 pos1 = it1->second.pos;
-                TVector3 pos2 = it2->second.pos;
-                TVector3 diff = pos2 - pos1;
-                double distance = diff.Mag();
+            TVector3 pos1 = hit1.pos;
+            TVector3 pos7 = hit7.pos;
+            TVector3 diff = pos7 - pos1;
+            double distance = diff.Mag();
 
-                double t1 = it1->second.adj_time;
-                double t2 = it2->second.adj_time;
-                double dt1 = panel_to_panel_offsets.at(panel1);
-                double dt2 = panel_to_panel_offsets.at(panel2); 
-		
-		double delta_t = t2 - t1;
-		double delta_dt = dt2 - dt1;
+            double t1  = hit1.adj_time;
+            double t7  = hit7.adj_time;
+            double dt1 = panel_to_panel_offsets.at("panel_1");
+            double dt7 = panel_to_panel_offsets.at("panel_7");
 
-		if (delta_t + delta_dt == 0) continue;
-		if (std::abs(delta_t) < 0.424) continue;
+            double delta_t  = t7 - t1;
+            double delta_dt = dt7 - dt1;
 
-		double beta = distance/(c_mm_per_ns * std::abs(delta_t + delta_dt));
-
-		h_beta->Fill(beta);
+            if (delta_t + delta_dt != 0 && std::abs(delta_t) >= 0.424) {
+                double tdiff = std::abs(delta_t + delta_dt);
+                h_beta->Fill(tdiff);	
 
 		/*
 		if (t2 > t1) {
@@ -416,11 +409,11 @@ int main(int argc, char* argv[]) {
     // save PDF
     TCanvas canvas("canvas", "Histogram", 800, 600);
     h_beta->Draw();
-    std::string pdf_filename = fs::path(out_path) / "beta_all.pdf";
+    std::string pdf_filename = fs::path(out_path) / "delta_t_1_7.pdf";
     canvas.Print(pdf_filename.c_str());
 
     // save ROOT
-    std::string root_filename = fs::path(out_path) / "beta_all.root";
+    std::string root_filename = fs::path(out_path) / "delta_t_1_7.root";
     TFile rootfile(root_filename.c_str(), "RECREATE");
     h_beta->Write();
     rootfile.Close();
