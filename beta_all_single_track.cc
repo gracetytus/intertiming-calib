@@ -37,7 +37,7 @@ std::vector<int> panel_3_vids  = {112000700, 112000600, 112000500, 112000400, 11
 std::vector<int> panel_4_vids  = {114000700, 114000600, 114000500, 114000400, 114000300, 114000200, 114000100, 114000000};
 std::vector<int> panel_5a_vids = {113000700, 113000600, 110000500};
 std::vector<int> panel_5b_vids = {113000200, 113000100, 113000000};
-std::vector<int> panel_6_vids  = {11500000, 115000100, 115000200, 115000300, 115000400, 115000500, 115000600, 115000700};
+std::vector<int> panel_6_vids  = {115000000, 115000100, 115000200, 115000300, 115000400, 115000500, 115000600, 115000700};
 std::vector<int> panel_57_vids = {116000000};
 std::vector<int> panel_58_vids = {116200000};
 std::vector<int> panel_59_vids = {116300000};
@@ -248,7 +248,7 @@ int main(int argc, char* argv[]) {
     );
 
     TChain* Instrument_Events = new TChain("TreeRec");
-    Instrument_Events->SetAutoDelete(true);
+    //Instrument_Events->SetAutoDelete(true);
     CEventRec* Event = new CEventRec;
     Instrument_Events->SetBranchAddress("Rec", &Event);
     Instrument_Events->Add(data_path.c_str()); 
